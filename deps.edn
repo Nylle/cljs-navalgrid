@@ -1,0 +1,12 @@
+{:paths
+ ["src" "tests" "resources" "target"]
+
+ :deps
+ {org.clojure/clojurescript {:mvn/version "1.10.597"}
+  com.bhauman/figwheel-main {:mvn/version "0.2.3"}
+  reagent                   {:mvn/version "0.10.0"}
+  cljs-http                 {:mvn/version "0.1.46"}}
+
+ :aliases
+ {:pro {:main-opts ["-m" "figwheel.main" "--optimizations" "advanced" "--build-once" "pro"]}
+  :dev {:main-opts ["-m" "figwheel.main" "--build" "dev" "--repl"]}}}
