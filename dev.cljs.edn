@@ -1,3 +1,3 @@
 ^{:watch-dirs ["src"]
   :css-dirs   ["resources"]}
-{:main navalgrid.main}
+{:main navalgrid.core}
