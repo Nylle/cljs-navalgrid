@@ -6,15 +6,25 @@
     [navalgrid.mapbox :as m]
     [navalgrid.api :as api]))
 
-(defonce s (r/atom {:id "bf"}))
+(defonce s (r/atom {}))
+
+(defn error-msg [status]
+  (case status
+        400 "Invalid square reference"
+        404 "Square not found"
+        (str "Error: " status)))
 
 (defn map-refresh [id]
   (let [map (:map @s)]
     (swap! s assoc :id id)
     (go
-     (let [square (:body (<! (api/get-square id)))]
-       (m/set-square map square)
-       (swap! s assoc :map map)))))
+     (let [response (<! (api/get-square id))]
+       (if (not= (:status response) 200)
+         (swap! s assoc :search-message (error-msg (:status response)))
+         (let [square (:body response)]
+           (m/set-square map square)
+           (swap! s assoc :map map)
+           (swap! s assoc :search-message "")))))))
 
 (defn map-canvas []
   (r/create-class
@@ -23,11 +33,11 @@
     :component-did-mount
     (fn [comp]
       (go
-       (let [square (:body (<! (api/get-square "bf3")))]
+       (let [square (:body (<! (api/get-square "")))]
          (let [map (m/create-map comp (:Center square))]
            (m/on-load map
                       (fn []
-                        (m/set-square map square)
+                        (m/set-all-squares map square)
                         (swap! s assoc :map map)))))))}))
 
 (defn menu []
@@ -36,7 +46,8 @@
     {:type      :text
      :name      :square-id
      :value     (:id @s)
-     :on-change (fn [e] (map-refresh (-> e .-target .-value)))}]])
+     :on-change (fn [e] (map-refresh (-> e .-target .-value)))}]
+   [:div (:search-message @s)]])
 
 (defn app []
   [:div#app

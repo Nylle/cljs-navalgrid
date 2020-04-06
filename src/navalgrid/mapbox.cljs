@@ -37,3 +37,9 @@
   (add-square map "inner" 2 (:InnerCoordinates square))
   (fit-bounds map (:Bounds square)))
 
+(defn set-all-squares [map square]
+  (remove-square map "outer")
+  (remove-square map "inner")
+  (add-square map "inner" 2 (:OuterCoordinates square))
+  (.setZoom map 2))
+
