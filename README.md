@@ -1,3 +1,7 @@
+## About
+
+This is the attempt to build a new UI for http://www.navalgrid.com/ in ClojureScript to provide a fully interactive map.
+
 ## Prerequisites
 
 - Java 8 or 11 (JDK)
