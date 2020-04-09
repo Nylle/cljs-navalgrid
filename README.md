@@ -8,6 +8,12 @@
 $ deps -A:dev
 ```
 
+## Test It
+```shell script
+$ deps -A:tst
+```
+See the results at /figwheel-extra-main/auto-testing
+
 ## Build For Production
 ```shell script
 $ rm -rf target/public

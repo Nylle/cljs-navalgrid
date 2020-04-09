@@ -9,4 +9,5 @@
 
  :aliases
  {:pro {:main-opts ["-m" "figwheel.main" "--optimizations" "advanced" "--build-once" "pro"]}
-  :dev {:main-opts ["-m" "figwheel.main" "--build" "dev" "--repl"]}}}
+  :dev {:main-opts ["-m" "figwheel.main" "--build" "dev" "--repl"]}
+  :tst {:main-opts ["-m" "figwheel.main" "--build" "tst" "--repl"]}}}
