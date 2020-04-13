@@ -1,3 +1,4 @@
-^{:watch-dirs ["src"]
-  :css-dirs   ["resources"]}
+^{:watch-dirs ["src" "tests"]
+  :css-dirs   ["resources"]
+  :auto-testing true}
 {:main navalgrid.core}
