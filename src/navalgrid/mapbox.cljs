@@ -1,23 +1,25 @@
 (ns ^:figwheel-hooks navalgrid.mapbox
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [navalgrid.geo :as geo]
+            [navalgrid.polylabel :as p]))
 
 (defonce markers (r/atom []))
 
 (defn create-map [canvas & [center]]
   (js/createMap (reagent.dom/dom-node canvas) 0 (clj->js (or center [0 0]))))
 
+(defn on-load [map f]
+  (.on map "load" f))
+
 (defn create-marker [img]
   (js/mapboxgl.Marker. img))
 
-(defn on-load [map f]
-  (.on map "load" f))
+(defn fit-bounds [map coordinates]
+  (.fitBounds map (clj->js coordinates) (clj->js {:padding 150})))
 
 (defn remove-square [map id]
   (if (.getLayer map id) (.removeLayer map id))
   (if (.getSource map id) (.removeSource map id)))
-
-(defn fit-bounds [map coordinates]
-  (.fitBounds map (clj->js coordinates) (clj->js {:padding 150})))
 
 (defn add-square [map id width coordinates]
   (.addSource map
@@ -36,6 +38,11 @@
                :layout {:line-cap "square"},
                :paint  {:line-color "#038D3C", :line-width width}})))
 
+(defn clear-markers []
+  (doseq [marker @markers]
+    (.remove marker))
+  (reset! markers []))
+
 (defn add-marker [map coordinate img-src scale]
   (let [img (js/Image.)]
     (set! (.-onload img)
@@ -50,20 +57,22 @@
       (.addTo marker map)
       (swap! markers conj marker))))
 
-(defn clear-markers []
-  (doseq [marker @markers]
-    (.remove marker))
-  (reset! markers []))
 
 (defn set-square [map square]
-  (remove-square map "outer")
-  (remove-square map "inner")
-  (add-square map "outer" 3 (:OuterCoordinates square))
-  (add-square map "inner" 2 (:InnerCoordinates square))
   (clear-markers)
-  (add-marker map (:Center square) (:LabelUrl square) 0.75)
-  ;;TODO: sub labels!
-  (fit-bounds map (:Bounds square)))
+  (let [poly (geo/polygon (:Coordinates square))
+        id   "outer"]
+    (remove-square map id)
+    (add-square map id 3 [poly])
+    (add-marker map (p/poly-label [poly]) (:LabelUrl square) 0.75))
+  (let [subsquares (:ChildSquares square)
+        id         "inner"]
+    (remove-square map id)
+    (add-square map id 2 (mapv #(geo/polygon (:Coordinates %)) subsquares))
+    (doseq [s subsquares]
+      (add-marker map (p/poly-label [(geo/polygon (:Coordinates s))]) (:LabelUrl s) 0.75))
+    )
+  (fit-bounds map (geo/fix-for-antimeridian (:Bounds square))))
 
 (defn set-all-squares [map square]
   (remove-square map "outer")
