@@ -11,12 +11,7 @@ This is the attempt to build a new UI for [navalgrid.com](http://www.navalgrid.c
 ```shell script
 $ deps -A:dev
 ```
-
-## Test It
-```shell script
-$ deps -A:tst
-```
-See the results at /figwheel-extra-main/auto-testing
+See test results at `/figwheel-extra-main/auto-testing`
 
 ## Build For Production
 ```shell script
