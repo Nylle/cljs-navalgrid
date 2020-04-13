@@ -15,16 +15,17 @@
         (str "Error: " status)))
 
 (defn map-refresh [id]
-  (let [map (:map @s)]
-    (swap! s assoc :id id)
-    (go
-     (let [response (<! (api/get-square id))]
-       (if (not= (:status response) 200)
-         (swap! s assoc :search-message (error-msg (:status response)))
-         (let [square (:body response)]
-           (m/set-square map square)
-           (swap! s assoc :map map)
-           (swap! s assoc :search-message "")))))))
+  (swap! s assoc :id id)
+  (if (> (count id) 1)
+    (let [map (:map @s)]
+      (go
+       (let [response (<! (api/get-square id))]
+         (if (not= (:status response) 200)
+           (swap! s assoc :search-message (error-msg (:status response)))
+           (let [square (:body response)]
+             (m/set-square map square)
+             (swap! s assoc :map map)
+             (swap! s assoc :search-message ""))))))))
 
 (defn map-canvas []
   (r/create-class
@@ -33,12 +34,10 @@
     :component-did-mount
     (fn [comp]
       (go
-       (let [square (:body (<! (api/get-square "")))]
-         (let [map (m/create-map comp (:Center square))]
-           (m/on-load map
-                      (fn []
-                        (m/set-all-squares map square)
-                        (swap! s assoc :map map)))))))}))
+       (let [map (m/create-map comp [0 40])]
+         (m/on-load map
+                    (fn []
+                      (swap! s assoc :map map))))))}))
 
 (defn menu []
   [:div#menu
