@@ -105,13 +105,13 @@
   [cells candidate polygon precision]
   (if (empty? cells)
     candidate
-    (let [head (first cells)
-          tail (rest cells)
-          best (if (> (:d head) (:d candidate)) head candidate)]
+    (let [head  (first cells)
+          tail  (rest cells)
+          best  (if (> (:d head) (:d candidate)) head candidate)]
       (recur
         (if (<= (- (:max head) (:d best)) precision)
           tail
-          (into [] (concat tail (split-cell head polygon))))
+          (sort-by :max (into [] (concat tail (split-cell head polygon)))))
         best
         polygon
         precision))))
@@ -130,11 +130,11 @@
          h         (/ cell-size 2)]
      (if (= 0 cell-size)
        [min-x min-y]
-       (let [cells         (for [x (range min-x max-x cell-size)
-                                 y (range min-y max-y cell-size)]
-                             (new-cell (+ x h) (+ y h) h polygon))
-             centroid-cell (centroid-cell polygon)
-             bounding-cell (new-cell (+ min-x (/ width 2)) (+ min-y (/ height 2)) 0 polygon)
+       (let [cells                   (for [x (range min-x max-x cell-size)
+                                           y (range min-y max-y cell-size)]
+                                       (new-cell (+ x h) (+ y h) h polygon))
+             centroid-cell           (centroid-cell polygon)
+             bounding-cell           (new-cell (+ min-x (/ width 2)) (+ min-y (/ height 2)) 0 polygon)
              best-cell-candidate     (if (> (:d bounding-cell) (:d centroid-cell)) bounding-cell centroid-cell)
-             result        (find-best-cell cells best-cell-candidate polygon precision)]
+             result                  (find-best-cell (sort-by :max cells) best-cell-candidate polygon precision)]
          [(:x result) (:y result)])))))

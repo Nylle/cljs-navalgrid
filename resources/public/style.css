@@ -25,4 +25,6 @@ div#menu {
   box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
-
+div#square-info {
+  background-color: #CCCCCC;
+}

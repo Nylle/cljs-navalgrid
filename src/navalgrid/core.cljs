@@ -46,7 +46,8 @@
      :name      :square-id
      :value     (:id @s)
      :on-change (fn [e] (map-refresh (-> e .-target .-value)))}]
-   [:div (:search-message @s)]])
+   [:div#search-message (:search-message @s)]
+   [:div#square-info]])
 
 (defn app []
   [:div#app

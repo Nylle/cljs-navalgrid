@@ -6,7 +6,9 @@
 (defonce markers (r/atom []))
 
 (defn create-map [canvas & [center]]
-  (js/createMap (reagent.dom/dom-node canvas) 0 (clj->js (or center [0 0]))))
+      (let [map (js/createMap (reagent.dom/dom-node canvas) 0 (clj->js (or center [0 0])))]
+        (.addControl map (js/mapboxgl.NavigationControl.))
+        map))
 
 (defn on-load [map f]
   (.on map "load" f))
@@ -75,8 +77,14 @@
   (fit-bounds map (geo/fix-for-antimeridian (:Bounds square))))
 
 (defn set-all-squares [map square]
+  ;;TODO: https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+  ;;      for alternative markers which could be zoom-level sensitive
   (remove-square map "outer")
   (remove-square map "inner")
   (add-square map "inner" 2 (:OuterCoordinates square))
   (.setZoom map 2))
+
+
+
+
 
