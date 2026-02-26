@@ -1,0 +1,19 @@
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ []
+
+ :dev-http {8080 "public"
+            3001 "out/test"}
+
+ :builds
+ {:frontend
+  {:target  :browser
+   :modules {:main {:init-fn navalgrid.app/init}}}
+  :test         {:target    :node-test
+                 :output-to "out/node-tests.js"}
+  :browser-test {:target   :browser-test
+                 :test-dir "out/test"}}}
