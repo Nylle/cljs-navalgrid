@@ -18,11 +18,14 @@ npx shadow-cljs browser-repl
 ```bash
 shadow-cljs pom
 ```
+Using the POM, the project can be fully recognized by IDEA
 
 ### Integrated REPL
 ```bash
 npx shadow-cljs server
 ```
+The watch process will have compiled the given code to `public/js`. The generated .js must be loaded in a browser.
+
 Run Configurations → `+` → Clojure REPL → Remote
 - nREPL
 - Use port from file with localhost
