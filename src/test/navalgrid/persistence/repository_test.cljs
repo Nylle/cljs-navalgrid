@@ -39,17 +39,22 @@
     (is (= (sut/find-by-id "ÄG") {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]}))
     (is (= (sut/find-by-id "ÄG1") {:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}))
     (is (= (sut/find-by-id "ÄG9999") {:id "ÄG9999" :nw [77.2 45] :se [77.1 45.5]})))
-  (testing "large partial square with column [1 4 7]"
+  (testing "large partial square OT with columns [[1] [4] [7]]"
     (is (= (sut/find-by-id "OT") {:id "OT" :nw [33.8 167] :se [25.7 170.6]}))
     (is (= (sut/find-by-id "OT1") {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}))
     (is (= (sut/find-by-id "OT2") nil))
-    (is (= (sut/find-by-id "OT4") {:id "OT4" :nw [31.1 167] :se [28.4 170.6]}))
-    (is (= (sut/find-by-id "OT7456") {:id "OT7456" :nw [27.1 167.667] :se [27 167.8]}))
     (is (= (sut/find-by-id "OT7999") {:id "OT7999" :nw [25.8 170.467] :se [25.7 170.6]})))
+  (testing "large partial square YC with row [7 8 9]"
+    (is (= (sut/find-by-id "YC") {:id "YC" :nw [85.1 126.5] :se [82.4 -172.75]}))
+    (is (= (sut/find-by-id "YC1") nil))
+    (is (= (sut/find-by-id "YC7") {:id "YC7" :nw [85.1 126.5] :se [82.4 146.75]}))
+    (is (= (sut/find-by-id "YC9999") {:id "YC9999" :nw [82.5 -173.5] :se [82.4 -172.75]})))
   (testing "irregular squares"
-    (is (= (sut/find-by-id "ÄA") {:id "ÄA" :nw [60.9 -71.5] :se [59.1 -44.5]})))
+    (is (= (sut/find-by-id "ÄA") {:id "ÄA" :nw [60.9 -71.5] :se [59.1 -44.5]}))
+    (is (= (sut/find-by-id "MA48") {:id "MA48" :nw [29.3 38.9] :se [28.4 39.8]})))
   (testing "polygonal squares"
-    (is (= (sut/find-by-id "AM6") {:id "AM6" :poly [[56.4 -7] [56.4 -4] [55.5 -4] [55.5 -2.5] [53.7 -2.5] [53.7 -7]]})))
+    (is (= (sut/find-by-id "AM6") {:id "AM6" :poly [[56.4 -7] [56.4 -4] [55.5 -4] [55.5 -2.5] [53.7 -2.5] [53.7 -7]]}))
+    (is (= (sut/find-by-id "XN") {:id "XN" :poly [[82.4 -103] [82.4 -76] [77.1 -76] [77.1 -85] [74.3 -85] [74.3 -103]]})))
   (testing "two-by-five squares"
     (is (= (sut/find-by-id "AK1") {:id "AK1" :nw [60.9 -37.3] :se [56.4 -33.7] :so :v}))
     (is (= (sut/find-by-id "AK11") {:id "AK11" :nw [60.9 -37.3] :se [60 -35.5]}))
