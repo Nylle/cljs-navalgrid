@@ -1,5 +1,5 @@
 (ns navalgrid.domain.square-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [cljs.test :refer [deftest is testing]]
             [navalgrid.domain.square :as sut]))
 
 (deftest shift-test

@@ -1,6 +1,6 @@
 (ns navalgrid.persistence.repository-test
-  (:require [cljs.test :refer [deftest is testing]])
-  (:require [navalgrid.persistence.repository :as sut]))
+  (:require [cljs.test :refer [deftest is testing]]
+            [navalgrid.persistence.repository :as sut]))
 
 (deftest two-by-five-search-key-test
   (is (= "AK1" (sut/two-by-five-search-key "AK1")))

@@ -1,6 +1,6 @@
 (ns navalgrid.domain.geo-test
   (:require [cljs.test :refer [deftest is testing]]
-            [cljs.math :as math]
+            [navalgrid.math :as math]
             [navalgrid.domain.geo :as geo]))
 
 (deftest rhumb-distance-test

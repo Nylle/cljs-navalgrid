@@ -1,6 +1,4 @@
-(ns navalgrid.core
-  (:require #?(:clj  [clj.math :as math]
-               :cljs [cljs.math :as math])))
+(ns navalgrid.core)
 
 (defn finite? [x]
   #?(:clj  (and (number? x) (<= (- Double/MAX_VALUE) x Double/MAX_VALUE))
@@ -19,12 +17,6 @@
 
 (defn seq-empty? [coll]
   (not (seq coll)))
-
-(defn round [digits x]
-  (let [factor (apply * (take digits (repeat 10)))]
-    (-> (* x factor)
-        (math/round)
-        (/ factor))))
 
 (defn index-of [coll x]
   (some (fn [[i item]] (if (= x item) i))

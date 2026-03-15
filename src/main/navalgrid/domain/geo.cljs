@@ -1,5 +1,5 @@
 (ns navalgrid.domain.geo
-  (:require [cljs.math :as math]
+  (:require [navalgrid.math :as math]
             [navalgrid.core :as core]))
 
 (def earth-radius-nmi 3440)
@@ -7,7 +7,7 @@
 (defn isometric-lat-diff
   "Returns the isometric (projected) difference between latitudes lat1 and lat2. Latitudes have to be in rad.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
-  [^number lat1 ^number lat2]
+  [lat1 lat2]
   (let [pi-quarter (/ math/PI 4)
         tan1 (math/tan (+ pi-quarter (/ lat1 2)))
         tan2 (math/tan (+ pi-quarter (/ lat2 2)))]
@@ -17,7 +17,7 @@
   "Returns the smallest difference between longitudes lon1 and lon2. If it is greater than 180° take the shorter rhumb
   line across the anti-meridian. Longitudes have to be in rad.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
-  [^number lon1 ^number lon2]
+  [lon1 lon2]
   (let [dLon (- lon2 lon1)]
     (if (> (math/fabs dLon) math/PI)
       (if (> dLon 0)
@@ -33,7 +33,7 @@
   latitute (lat1); in the general case, it is Δφ/Δψ where Δφ is the geodetic latitude-difference (dLat) and Δψ is the
   isometric latitude difference (dLat').
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
-  [^number dLat ^number dLat' ^number lat1]
+  [dLat dLat' lat1]
   (let [res (/ dLat dLat')]
     (if (core/finite? res)
       res
@@ -80,7 +80,7 @@
 (defn normalize-lon
   "Returns the normalized value for longitude lon if outside -180°..180° otherwise lon.
   Example: a lon of 181° is being normalized to -179°."
-  [^number lon]
+  [lon]
   (cond
     (> lon 180) (- lon 360)
     (< lon -180) (+ lon 360)
@@ -91,7 +91,7 @@
   distance of (lon2-lon1)/div between them.
   Example: a rhumb line between lon1=175 and lon2=-175 crossing the anti-meridian has a length of 10. With div=5
   the resulting collection is (175, 177, 179, -179, -177)."
-  [^number lon1 ^number lon2 ^number div]
+  [lon1 lon2 div]
   (let [dLon (- lon2 lon1)
         range' #(concat (range %1 %2 (/ (- %2 %1) div)) [lon2])]
     (cond
@@ -104,13 +104,13 @@
   (lat2-lat1)/div between them.
   Example: a rhumb line between lat1=2 and lat2=-4 has a length of 6. With div=3 the resulting collection is
   (2, 0, -2)."
-  [^number lat1 ^number lat2 ^number div]
+  [lat1 lat2 div]
   (concat (range lat1 lat2 (/ (- lat2 lat1) div)) [lat2]))
 
 (defn simple-rhumb-division
   "Divides a rhumb line between coordinates coord1 and coord2 by div into equal parts and returns the respective coordinates.
   This only works for strictly horizontal or vertical rhumb lines with bearings of 0°, 90°, 180°, 270°."
-  [coord1 coord2 ^number div]
+  [coord1 coord2 div]
   (let [[lat1 lon1] coord1
         [lat2 lon2] coord2]
     (cond
