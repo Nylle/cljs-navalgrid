@@ -1,8 +1,7 @@
 (ns navalgrid.domain.square
   (:require [navalgrid.core :as core]
             [navalgrid.domain.geo :as geo]
-            [cljs.math :as math]
-            [cljs.pprint :refer [pprint]]))
+            [cljs.math :as math]))
 
 (defn shift [square orientation factor]
   (let [{[nw-lat nw-lon] :nw [se-lat se-lon] :se} square]
@@ -46,7 +45,7 @@
           (shift :v v)))))
 
 (defn regular-square [ref def]
-  (loop [refs (map js/parseInt (drop (count (:id def)) ref))
+  (loop [refs (map core/str->int (drop (count (:id def)) ref))
          square def]
     (if (empty? refs)
       square
@@ -62,7 +61,7 @@
         [e s] (if (= so :v) [2 5] [5 2])
         [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
         [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))
-        refs (map js/parseInt (seq (drop 2 ref)))
+        refs (map core/str->int (seq (drop 2 ref)))
         n (if (= 0 (first refs)) 10 (second refs))]
     (if-let [[h v] (steps n (two-by-five-subs so))]
       (regular-square

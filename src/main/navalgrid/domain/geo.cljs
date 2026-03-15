@@ -116,4 +116,4 @@
     (cond
       (= lat1 lat2) (map (fn [x] [lat1 x]) (lon-range lon1 lon2 div))
       (= lon1 lon2) (map (fn [x] [x lon1]) (lat-range lat1 lat2 div))
-      :else (throw (js/Error. (str "Invalid bearing from " coord1 " to " coord2 ". Must be one of 0°, 90°, 180°, 270°."))))))
+      :else (throw (core/error (str "Invalid bearing from " coord1 " to " coord2 ". Must be one of 0°, 90°, 180°, 270°."))))))
