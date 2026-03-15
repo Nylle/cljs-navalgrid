@@ -7,6 +7,9 @@
 (defn seq-contains? [coll x]
   (some #(= x %) coll))
 
+(defn seq-empty? [coll]
+  (not (seq coll)))
+
 (defn round [^number digits ^number number]
   (let [factor (apply * (take digits (repeat 10)))]
     (-> (* number factor)

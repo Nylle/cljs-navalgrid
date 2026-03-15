@@ -15,6 +15,10 @@
   (testing "falsy"
     (is (= nil (sut/seq-contains? ["a" 2 :x] "b")))))
 
+(deftest seq-empty?-test
+  (is (= true (sut/seq-empty? [])))
+  (is (= false (sut/seq-empty? [1 2]))))
+
 (deftest round-test
   (testing "to 1 digit after decimal point"
     (is (= 45.6 (sut/round 1 45.554000000000014)))

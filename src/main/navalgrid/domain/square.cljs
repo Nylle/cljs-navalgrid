@@ -21,3 +21,17 @@
             (assoc-in [:se 0] (core/round 3 (+ se-lat dist)))))
 
       :default square)))
+
+;(defn xxx [square]
+;  (let [h-lat ])
+;  )
+
+;(defn recursive [square s]
+;  (if (core/seq-empty? s)
+;    square
+;    (recur square )))
+
+(defn regular [square ref]
+  (if (seq (:s ref))
+    {}
+    {:ref ref :nw (:nw square) :se (:se square)}))

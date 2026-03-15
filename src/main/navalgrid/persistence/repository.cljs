@@ -3,24 +3,38 @@
             [navalgrid.persistence.data :as data]
             [navalgrid.core :as core]))
 
-(defn find-in-group [{:keys [id nw se o] :or {o :h}} ref]
-  (let [i (.indexOf id (:l ref))]
-    (if (= i -1) nil (square/shift {:nw nw :se se} o i))))
+(defn extract-from-group [id group]
+  (let [{:keys [ids nw se o] :or {o :h}} group
+        i (.indexOf ids id)]
+    (if (> i -1)
+      (-> (merge group (square/shift {:id id :nw nw :se se} o i))
+          (dissoc :ids :o))
+      nil)))
 
-(defn regular-square [group ref]
-  (if (seq (:s ref))
-    "sub-square"
-    (as-> (find-in-group group ref) square
-          {:ref ref :nw (:nw square) :se (:se square)})))
+(defn find-large [id]
+  (let [large (apply str (take 2 id))]
+    (->> (concat data/large-regular-squares data/large-partial-squares)
+         (filter #(core/seq-contains? (:ids %) large))
+         (map #(extract-from-group large %)))))
 
-(defn find-by-ref
-  "ref: {:l \"AB\" :s [1 2 3 4]}"
-  [ref]
-  (let [large (->> (concat data/large-regular-squares data/large-partial-squares)
-                   (filter #(core/seq-contains? (:id %) (:l ref)))
-                   (take 1))]
-    (if (seq large)
-      (regular-square (first large) ref)
-      nil)
+(defn find-irregular [id]
+  (->> (concat data/irregular-squares data/two-by-five-squares)
+       (filter #(core/seq-contains? (:ids %) id))
+       (map #(extract-from-group id %))))
 
-    ))
+(defn find-polygonal [id]
+  (->> data/polygonal-squares
+       (filter #(= (:id %) id))
+       (map (fn [x] {:id id :poly (:poly x)}))))
+
+(defn find-partial [id]
+  (let [large (apply str (take 2 id))
+        subs (apply str (drop 2 id))
+        ids (set (drop 1 (reductions str large subs)))]
+    (->> data/partial-squares
+         (filter #(some ids (:ids %)))
+         (map #(extract-from-group id %)))))
+
+(defn find-by-id [id]
+  (->> (concat (find-large id) (find-irregular id) (find-polygonal id) (find-partial id))
+       (take 1)))
