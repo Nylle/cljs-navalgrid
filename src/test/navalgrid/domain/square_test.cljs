@@ -105,5 +105,4 @@
       (is (= {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}
              (sut/from-square-def "OT1" partial-square)))
       (is (= {:id "OT1999" :nw [31.2 170.467] :se [31.1 170.6]}
-             (sut/from-square-def "OT1999" partial-square)))))
-  )
+             (sut/from-square-def "OT1999" partial-square))))))

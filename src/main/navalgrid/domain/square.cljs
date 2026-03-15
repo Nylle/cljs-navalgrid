@@ -47,7 +47,7 @@
 (defn regular-square [ref def]
   (loop [refs (map core/str->int (drop (count (:id def)) ref))
          square def]
-    (if (empty? refs)
+    (if (or (nil? square) (empty? refs))
       square
       (recur (rest refs) (sub-square square (first refs))))))
 

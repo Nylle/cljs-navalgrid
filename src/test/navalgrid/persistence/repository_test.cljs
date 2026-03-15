@@ -57,10 +57,14 @@
     (is (= (sut/find-by-id "AK18") {:id "AK18" :nw [58.2 -35.5] :se [57.3 -33.7]}))
     (is (= (sut/find-by-id "AK01") {:id "AK01" :nw [57.3 -35.5] :se [56.4 -33.7]}))
     (is (= (sut/find-by-id "AK0199") {:id "AK0199" :nw [56.5 -33.9] :se [56.4 -33.7]})))
-  (testing "partial squares"
-    ;TODO!!!!!!
-    (is (= {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5] :sub [[1 2] [4 5] [7 8]]}
-           (sut/find-by-id "AL5"))))
+  (testing "partial squares [[1 2] [4 5] [7 8]]"
+    (is (= (sut/find-by-id "AL5") {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5]}))
+    (is (= (sut/find-by-id "AL51") {:id "AL51" :nw [56.4 -23.5] :se [55.5 -22]}))
+    (is (= (sut/find-by-id "AL53") nil))
+    (is (= (sut/find-by-id "AL5899") {:id "AL5899" :nw [53.8 -20.667] :se [53.7 -20.5]}))
+    (is (= (sut/find-by-id "AL59") nil))
+    (is (= (sut/find-by-id "AL599") nil))
+    (is (= (sut/find-by-id "AL5999") nil)))
   (testing "combination of polygonal, irregular, and partial squares"
     (is (= (sut/find-by-id "AD") {:id "AD" :poly [[69 -37.75] [69 -24.25] [60.9 -24.25] [60.9 -37.3] [59.1 -37.3] [59.1 -44.5] [66.3 -44.5] [66.3 -37.75]]}) "polygonal")
     (is (= (sut/find-by-id "AD1") {:id "AD1" :nw [69 -37.75] :se [66.3 -31]}) "partial")
