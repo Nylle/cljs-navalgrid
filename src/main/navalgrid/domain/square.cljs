@@ -1,7 +1,8 @@
 (ns navalgrid.domain.square
   (:require [navalgrid.core :as core]
             [navalgrid.domain.geo :as geo]
-            [cljs.math :as math]))
+            [cljs.math :as math]
+            [cljs.pprint :refer [pprint]]))
 
 (defn shift [square orientation factor]
   (let [{[nw-lat nw-lon] :nw [se-lat se-lon] :se} square]
@@ -32,11 +33,8 @@
       (when i
         [(mod i (count (first sub))) (quot i (count (first sub)))]))))
 
-(defn map-to-model [def]
-  (if-let [{:keys [id poly nw se]} def]
-    (if (seq poly)
-      {:id id :outer poly}
-      {:id id :outer [nw [(first nw) (second se)] se [(first se) (second nw)]]})))
+(defn cleanup [def]
+  (dissoc def :sub))
 
 (defn sub-square [{:keys [id nw se sub]} n]
   (let [[e s] (if sub [(count (first sub)) (count sub)] [3 3])
@@ -47,21 +45,36 @@
           (shift :h h)
           (shift :v v)))))
 
-(defn regular-square [id def]
-  (loop [ids (map js/parseInt (drop (count (:id def)) id))
+(defn regular-square [ref def]
+  (loop [refs (map js/parseInt (drop (count (:id def)) ref))
          square def]
-    (if (empty? ids)
+    (if (empty? refs)
       square
-      (recur (rest ids) (sub-square square (first ids))))))
+      (recur (rest refs) (sub-square square (first refs))))))
 
-(defn two-by-five-square
-  "id: AB1234 def: {:id \"AL3\" :nw [60.9 -19.3] :se [56.4 -15.7] :so :v}"
-  [id def]
-  nil)
+(defn two-by-five-subs [o]
+  (if (= o :v)
+    [[1 2] [3 4] [5 6] [7 8] [9 10]]
+    [[1 2 3 4 5] [6 7 8 9 10]]))
 
-(defn from-square-def [id def]
+(defn two-by-five-square [ref def]
+  (let [{:keys [nw se so]} def
+        [e s] (if (= so :v) [2 5] [5 2])
+        [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
+        [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))
+        refs (map js/parseInt (seq (drop 2 ref)))
+        n (if (= 0 (first refs)) 10 (second refs))]
+    (if-let [[h v] (steps n (two-by-five-subs so))]
+      (regular-square
+        ref
+        (-> {:id (apply str (take 4 ref)) :nw nw :se [lat-s lon-e]}
+            (shift :h h)
+            (shift :v v))))))
+
+(defn from-square-def [ref def]
   (if def
-    (map-to-model (cond
-                    (= (:id def) id) def
-                    (:so def) (two-by-five-square id def)
-                    :default (regular-square id def)))))
+    (cleanup
+      (cond
+        (= (:id def) ref) def
+        (:so def) (two-by-five-square ref def)
+        :default (regular-square ref def)))))

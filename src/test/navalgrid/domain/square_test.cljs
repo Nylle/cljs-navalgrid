@@ -86,33 +86,24 @@
         (is (= nil (sut/sub-square square 3)))))))
 
 (deftest from-square-def-test
-  (testing "not found"
+  (testing "returns nil when not found"
     (is (= nil (sut/from-square-def "BLA" nil))))
-  (testing "requested square was in repo as is"
-    (is (= {:id "ÄG" :outer [[85.2 5] [85.2 45.5] [77.1 45.5] [77.1 5]]}
-           (sut/from-square-def "ÄG" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})))
-    (is (= {:id "OT" :outer [[33.8 167] [33.8 170.6] [25.7 170.6] [25.7 167]]}
-           (sut/from-square-def "OT" {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]})))
-    (is (= {:id "ÄA" :outer [[60.9 -71.5] [60.9 -44.5] [59.1 -44.5] [59.1 -71.5]]}
-           (sut/from-square-def "ÄA" {:id "ÄA" :nw [60.9 -71.5] :se [59.1 -44.5]})))
-    (is (= {:id "AD" :outer [[69 -37.75] [69 -24.25] [60.9 -24.25] [60.9 -37.3] [59.1 -37.3] [59.1 -44.5] [66.3 -44.5] [66.3 -37.75]]}
-           (sut/from-square-def "AD" {:id "AD" :poly [[69 -37.75] [69 -24.25] [60.9 -24.25] [60.9 -37.3] [59.1 -37.3] [59.1 -44.5] [66.3 -44.5] [66.3 -37.75]]})))
-    (is (= {:id "AL3" :outer [[60.9 -19.3] [60.9 -15.7] [56.4 -15.7] [56.4 -19.3]]}
-           (sut/from-square-def "AL3" {:id "AL3" :nw [60.9 -19.3] :se [56.4 -15.7] :so :v})))
-    (is (= {:id "AL5" :outer [[56.4 -23.5] [56.4 -20.5] [53.7 -20.5] [53.7 -23.5]]}
-           (sut/from-square-def "AL5" {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5] :sub [[1 2] [4 5] [7 8]]}))))
-  (testing "requested square is sub-square from regular"
-    (is (= {:id "ÄG1" :outer [[85.2 5] [85.2 18.5] [82.5 18.5] [82.5 5]]}
-           (sut/from-square-def "ÄG1" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})))
-    (is (= {:id "ÄG3" :outer [[85.2 32] [85.2 45.5] [82.5 45.5] [82.5 32]]}
-           (sut/from-square-def "ÄG3" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})))
-    (is (= {:id "ÄG9999" :outer [[77.2 45] [77.2 45.5] [77.1 45.5] [77.1 45]]}
-           (sut/from-square-def "ÄG9999" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]}))))
-  (testing "requested square is partial"
+  (testing "returns requested square as is"
+    (let [expected {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]}]
+      (is (= (sut/from-square-def "ÄG" expected) expected)))
+    (let [expected {:id "AL3" :nw [60.9 -19.3] :se [56.4 -15.7]}]
+      (is (= (sut/from-square-def "AL3" expected) expected))))
+  (testing "returns requested sub-square from regular"
+    (is (= (sut/from-square-def "ÄG1" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})
+           {:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}))
+    (is (= (sut/from-square-def "ÄG3" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})
+           {:id "ÄG3" :nw [85.2 32] :se [82.5 45.5]}))
+    (is (= (sut/from-square-def "ÄG9999" {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]})
+           {:id "ÄG9999" :nw [77.2 45] :se [77.1 45.5]})))
+  (testing "returns requested sub-square from partial"
     (let [partial-square {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]}]
-      (is (= {:id "OT1" :outer [[33.8 167] [33.8 170.6] [31.1 170.6] [31.1 167]]}
+      (is (= {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}
              (sut/from-square-def "OT1" partial-square)))
-      (is (= {:id "OT1999" :outer [[31.2 170.467] [31.2 170.6] [31.1 170.6] [31.1 170.467]]}
-             (sut/from-square-def "OT1999" partial-square)))
-      ))
+      (is (= {:id "OT1999" :nw [31.2 170.467] :se [31.1 170.6]}
+             (sut/from-square-def "OT1999" partial-square)))))
   )
