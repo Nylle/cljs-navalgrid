@@ -4,10 +4,6 @@
 
 (def earth-radius-nmi 3440)
 
-(defn lat [[lat _]] lat)
-
-(defn lon [[_ lon]] lon)
-
 (defn isometric-lat-diff
   "Returns the isometric (projected) difference between latitudes lat1 and lat2. Latitudes have to be in rad.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
@@ -49,10 +45,10 @@
   from a defined initial bearing.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
   [coord1 coord2]
-  (let [lat1 (math/to-radians (lat coord1))
-        lat2 (math/to-radians (lat coord2))
-        lon1 (math/to-radians (lon coord1))
-        lon2 (math/to-radians (lon coord2))
+  (let [lat1 (math/to-radians (first coord1))
+        lat2 (math/to-radians (first coord2))
+        lon1 (math/to-radians (second coord1))
+        lon2 (math/to-radians (second coord2))
         dLat (- lat2 lat1)
         dLon (smallest-lon-diff lon1 lon2)
         dLon' (isometric-lat-diff lat1 lat2)]
@@ -69,10 +65,10 @@
   bearing.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
   [coord1 coord2]
-  (let [lat1 (math/to-radians (lat coord1))
-        lat2 (math/to-radians (lat coord2))
-        lon1 (math/to-radians (lon coord1))
-        lon2 (math/to-radians (lon coord2))
+  (let [lat1 (math/to-radians (first coord1))
+        lat2 (math/to-radians (first coord2))
+        lon1 (math/to-radians (second coord1))
+        lon2 (math/to-radians (second coord2))
         dLat-2 (/ (- lat2 lat1) 2)
         dLon-2 (/ (- lon2 lon1) 2)]
     (as-> (math/sin dLon-2) x
@@ -97,7 +93,7 @@
   the resulting collection is (175, 177, 179, -179, -177)."
   [^number lon1 ^number lon2 ^number div]
   (let [dLon (- lon2 lon1)
-        range' #(range %1 %2 (/ (- %2 %1) div))]
+        range' #(concat (range %1 %2 (/ (- %2 %1) div)) [lon2])]
     (cond
       (< dLon -180) (map normalize-lon (range' lon1 (+ lon1 (- 180 lon1) (+ 180 lon2))))
       (> dLon 180) (map normalize-lon (range' lon1 (- lon1 (+ 180 lon1) (- 180 lon2))))
@@ -109,7 +105,7 @@
   Example: a rhumb line between lat1=2 and lat2=-4 has a length of 6. With div=3 the resulting collection is
   (2, 0, -2)."
   [^number lat1 ^number lat2 ^number div]
-  (range lat1 lat2 (/ (- lat2 lat1) div)))
+  (concat (range lat1 lat2 (/ (- lat2 lat1) div)) [lat2]))
 
 (defn simple-rhumb-division
   "Divides a rhumb line between coordinates coord1 and coord2 by div into equal parts and returns the respective coordinates.

@@ -37,4 +37,5 @@
 
 (defn find-by-id [id]
   (->> (concat (find-large id) (find-irregular id) (find-polygonal id) (find-partial id))
-       (take 1)))
+       (take 1)
+       (first)))

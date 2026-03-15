@@ -34,3 +34,11 @@
     (is (= -45.554 (sut/round 3 -45.554000000000014)))
     (is (= -25.699 (sut/round 3 -25.699111111111116)))
     (is (= -25.7 (sut/round 3 -25.699999999999996)))))
+
+(deftest index-of-test
+  (is (= nil (sut/index-of ["a" "b" "c"] "d")))
+  (is (= 0 (sut/index-of ["a" "b" "c"] "a")))
+  (is (= 2 (sut/index-of ["a" "b" "c"] "c")))
+  (is (= nil (sut/index-of '("a" "b" "c") "d")))
+  (is (= 0 (sut/index-of '("a" "b" "c") "a")))
+  (is (= 2 (sut/index-of '("a" "b" "c") "c"))))

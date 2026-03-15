@@ -15,3 +15,7 @@
     (-> (* number factor)
         (math/round)
         (/ factor))))
+
+(defn index-of [coll x]
+  (some (fn [[i item]] (if (= x item) i))
+        (map-indexed vector coll)))
