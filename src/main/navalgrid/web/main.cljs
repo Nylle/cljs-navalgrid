@@ -2,10 +2,11 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf]
             [reagent.core :as r]
-            [navalgrid.persistence.repository :as repo]))
+            [navalgrid.persistence.repository :as repo]
+            [navalgrid.web.map :as m]))
 
 (def letters
-  (map char (range 65 91)))
+  (cons "NW" (map char (range 98 123))))
 
 (defn str->ref [s]
   (-> (str/upper-case s)
@@ -13,11 +14,13 @@
       (subs 0 6)))
 
 
+(rf/reg-fx :run-do (fn [f] (f)))
 
-(rf/reg-event-db :query-change (fn [db [_ s]]
-                                 (let [ref (str->ref s)]
-                                   (assoc db :query ref
-                                             :result (repo/find-by-id ref)))))
+(rf/reg-event-fx :query-change (fn [{:keys [db]} [_ s]]
+                                 (let [ref (str->ref s)
+                                       square (repo/find-by-id ref)]
+                                   {:db     (assoc db :query ref :result square)
+                                    :run-do #(m/set-square! square)})))
 
 (rf/reg-sub :query (fn [db _] (:query db)))
 (rf/reg-sub :result (fn [db _] (:result db)))
@@ -49,8 +52,18 @@
       (:poly res) [poly res]
       :default [regular res])))
 
+(defn map-component [ref]
+  [:div {:id    "map"
+         :ref   (fn [el] (reset! ref el))
+         :style {:width "100%" :height "100vh"}}])
+
 (defn canvas []
-  [:div#canvas])
+  (let [ref (r/atom nil)]
+    (r/create-class
+      {:display-name           "canvas"
+       :component-did-mount    (m/create-fn ref)
+       :component-will-unmount (m/destroy-fn)
+       :reagent-render         (fn [] [map-component ref])})))
 
 (defn index []
   [:<>
