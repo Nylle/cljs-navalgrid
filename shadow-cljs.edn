@@ -11,7 +11,7 @@
             3001 "out/test"}
 
  :builds   {:frontend     {:target  :browser
-                           :modules {:main {:init-fn navalgrid.app/init}}}
+                           :modules {:main {:init-fn navalgrid.app/run}}}
             :test         {:target    :node-test
                            :output-to "out/node-tests.js"}
             :browser-test {:target   :browser-test
