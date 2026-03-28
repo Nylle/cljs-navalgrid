@@ -66,5 +66,5 @@ node out/node-tests.js
 ## Release
 
 ```bash
-shadow-cljs release app
+shadow-cljs release frontend
 ```

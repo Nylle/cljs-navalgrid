@@ -1,9 +1,13 @@
 (ns navalgrid.web.map
   (:require [navalgrid.web.maplibre :as m]))
 
+(def map-properties {:style  "https://demotiles.maplibre.org/style.json"
+                     :center [0 0]
+                     :zoom   0})
+
 (defn create-fn
   "Returns a fn that creates a new map singleton."
-  [ref] (fn [_] (m/create! ref)))
+  [ref] (fn [_] (m/create! ref map-properties)))
 
 (defn destroy-fn
   "Returns a fn that destroys the previously created map singleton."
@@ -37,10 +41,10 @@
   (reduce
     (fn [acc curr]
       (cond
-        (empty? acc)                                    (conj acc curr)
-        (> (- (first curr) (first (last acc))) 180)     (conj acc [(- (first curr) 360) (second curr)])
-        (> (- (first (last acc)) (first curr)) 180)     (conj acc [(+ (first curr) 360) (second curr)])
-        :else                                           (conj acc curr)))
+        (empty? acc) (conj acc curr)
+        (> (- (first curr) (first (last acc))) 180) (conj acc [(- (first curr) 360) (second curr)])
+        (> (- (first (last acc)) (first curr)) 180) (conj acc [(+ (first curr) 360) (second curr)])
+        :else (conj acc curr)))
     []
     lnglats))
 
@@ -61,14 +65,15 @@
             :properties {}}}))
 
 (defn set-square! [square]
-  (let [id "outer"]
-    (m/remove-layer! id)
-    (m/remove-source! id)
-    (m/add-source! id (square->geojson square))
-    (m/add-layer! {:id     id
-                   :type   "line"
-                   :source id
-                   :layout {:line-cap "square"}
-                   :paint  {:line-color "#000000"
-                            :line-width 2}})
-    (m/fit-bounds! (map coord->lngLat (bounds square)))))
+  (when square
+    (let [id "outer"]
+      (m/remove-layer! id)
+      (m/remove-source! id)
+      (m/add-source! id (square->geojson square))
+      (m/add-layer! {:id     id
+                     :type   "line"
+                     :source id
+                     :layout {:line-cap "square"}
+                     :paint  {:line-color "#000000"
+                              :line-width 2}})
+      (m/fit-bounds! (map coord->lngLat (bounds square))))))

@@ -3,17 +3,14 @@
 
 (defonce map-inst (atom nil))
 
-(defn create! [ref]
+(defn create! [ref props]
   (when-let [el @ref]
-    (let [m (maplibregl/Map. (clj->js {:container el
-                                       :style     "https://demotiles.maplibre.org/style.json"
-                                       :center    [0 0]
-                                       :zoom      0}))]
+    (let [m (maplibregl/Map. (clj->js (assoc props :container el)))]
       (.addControl m (maplibregl/NavigationControl.))
       (reset! map-inst m))))
 
 (defn destroy! []
-  (when-let [m @map-inst]
+  (when-let [^js m @map-inst]
     (.remove m)
     (reset! map-inst nil)))
 
