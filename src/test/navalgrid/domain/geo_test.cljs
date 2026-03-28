@@ -13,6 +13,19 @@
       (is (= 120 (math/round (sut [0 -1] [0 1]))))
       (is (= 600 (math/round (sut [0 -5] [0 5])))))))
 
+(deftest haversine-distance-test
+  (testing "Nautical miles from Baghdad to Osaka on a great-circle line"
+    (is (= 4250 (math/round (geo/haversine-distance [35 45] [35 135]))))))
+
+(deftest normalize-lon-test
+  (is (= -179 (geo/normalize-lon 181))))
+
+(deftest lon-range-test
+  (is (= [175 177 179 -179 -177 -175] (geo/lon-range 175 -175 5))))
+
+(deftest lat-range-test
+  (is (= [2 0 -2 -4] (geo/lat-range 2 -4 3))))
+
 (deftest simple-rhumb-division-test
   (let [sut geo/simple-rhumb-division]
     (testing "Invalid bearing"
@@ -38,8 +51,3 @@
     (testing "Returns itself when start/end are identical"
       (is (= '([0 3]) (sut [0 3] [0 3] 3)))
       (is (= '([3 0]) (sut [3 0] [3 0] 3))))))
-
-(deftest haversine-distance-test
-         (let [sut geo/haversine-distance]
-              (testing "Nautical miles from Baghdad to Osaka on a great-circle line"
-                       (is (= 4250 (math/round (sut [35 45] [35 135])))))))

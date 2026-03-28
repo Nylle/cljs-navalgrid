@@ -1,7 +1,7 @@
 (ns navalgrid.web.map
   (:require [navalgrid.web.maplibre :as m]))
 
-(def map-properties {:style  "https://demotiles.maplibre.org/style.json"
+(def map-properties {:style  "marinequadratkarte.json"
                      :center [0 0]
                      :zoom   0})
 
@@ -48,32 +48,52 @@
     []
     lnglats))
 
-(defn polygon
-  "Returns a vector of lnglats for the provided coords where the first coord is appended again to form a 'ring'."
-  [coords]
-  (->> (conj coords (first coords))
-       (map coord->lngLat)
-       (fix-for-antimeridian)))
+(defn square->polygon
+  "Returns a vector of lnglats for the provided square where the first coord is appended again to form a 'ring'."
+  [{:keys [nw se poly]}]
+  (let [coords (or poly (coords nw se))]
+    (->> (conj coords (first coords))
+         (map coord->lngLat)
+         (fix-for-antimeridian))))
 
-(defn square->geojson [{:keys [nw se poly]}]
-  (let [coords (or poly (coords nw se))
-        lnglats (polygon coords)]
-    {:type "geojson"
-     :data {:type       "Feature"
-            :geometry   {:type        "Polygon"
-                         :coordinates [lnglats]}
-            :properties {}}}))
+(defn polygon->geojson [lnglats]
+  {:type "geojson",
+   :data {:type       "Feature",
+          :geometry   {:type        "Polygon",
+                       :coordinates [lnglats]},
+          :properties {}}}
+  )
+
+(defn polygons->geojson [polygons]
+  {:type "geojson"
+   :data {:type     "FeatureCollection"
+          :features (for [lnglats polygons]
+                      {:type       "Feature"
+                       :geometry   {:type        "Polygon"
+                                    :coordinates [lnglats]}
+                       :properties {}})}})
 
 (defn set-square! [square]
   (when square
-    (let [id "outer"]
-      (m/remove-layer! id)
-      (m/remove-source! id)
-      (m/add-source! id (square->geojson square))
-      (m/add-layer! {:id     id
+    (let [outer "outer"
+          inner "inner"
+          subs (:sub-squares square)]
+      (m/remove-layer! outer)
+      (m/remove-source! outer)
+      (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
+      (m/add-layer! {:id     outer
                      :type   "line"
-                     :source id
+                     :source outer
                      :layout {:line-cap "square"}
-                     :paint  {:line-color "#000000"
+                     :paint  {:line-color "#038D3C"
+                              :line-width 3}})
+      (m/remove-layer! inner)
+      (m/remove-source! inner)
+      (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
+      (m/add-layer! {:id     inner
+                     :type   "line"
+                     :source inner
+                     :layout {:line-cap "square"}
+                     :paint  {:line-color "#038D3C"
                               :line-width 2}})
       (m/fit-bounds! (map coord->lngLat (bounds square))))))

@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf]
             [reagent.core :as r]
-            [navalgrid.persistence.repository :as repo]
+            [navalgrid.web.model :as model]
             [navalgrid.web.map :as m]))
 
 (def letters
@@ -18,7 +18,7 @@
 
 (rf/reg-event-fx :query-change (fn [{:keys [db]} [_ s]]
                                  (let [ref (str->ref s)
-                                       square (repo/find-by-id ref)]
+                                       square (model/with-sub-squares ref)]
                                    {:db     (assoc db :query ref :result square)
                                     :run-do #(m/set-square! square)})))
 

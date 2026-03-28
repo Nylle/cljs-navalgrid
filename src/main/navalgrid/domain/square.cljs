@@ -3,7 +3,9 @@
             [navalgrid.math :as math]
             [navalgrid.domain.geo :as geo]))
 
-(defn shift [square orientation factor]
+(defn shift
+  "Returns square after shifting it by factor in the direction of orientation."
+  [square orientation factor]
   (let [{[nw-lat nw-lon] :nw [se-lat se-lon] :se} square]
     (cond
       (= :h orientation)
@@ -32,10 +34,10 @@
       (when i
         [(mod i (count (first sub))) (quot i (count (first sub)))]))))
 
-(defn cleanup [def]
-  (dissoc def :sub))
-
-(defn sub-square [{:keys [id nw se sub]} n]
+(defn sub-square
+  "Returns sub-square n for provided square.
+  Example: sub-square 5 for square AK1 would be AK15"
+  [{:keys [id nw se sub]} n]
   (let [[e s] (if sub [(count (first sub)) (count sub)] [3 3])
         [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
         [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))]
@@ -44,7 +46,11 @@
           (shift :h h)
           (shift :v v)))))
 
-(defn regular-square [ref def]
+(defn regular-square
+  "Returns 3-by-3-square that matches reference ref by calculating from definition def.
+  Example: for ref CG1234 and def CG, the sub-square will be calculated based on CG
+  Example 2: for ref CG and def CG, def will be returned"
+  [ref def]
   (loop [refs (map core/str->int (drop (count (:id def)) ref))
          square def]
     (if (or (nil? square) (empty? refs))
@@ -56,7 +62,11 @@
     [[1 2] [3 4] [5 6] [7 8] [9 10]]
     [[1 2 3 4 5] [6 7 8 9 10]]))
 
-(defn two-by-five-square [ref def]
+(defn two-by-five-square
+  "Returns 2-by-5-square that matches reference ref by calculating from definition def.
+  Example: for ref CG1234 and def CG, the sub-square will be calculated based on CG
+  Example 2: for ref CG and def CG, def will be returned"
+  [ref def]
   (let [{:keys [nw se so]} def
         [e s] (if (= so :v) [2 5] [5 2])
         [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
@@ -70,10 +80,20 @@
             (shift :h h)
             (shift :v v))))))
 
+(defn cleanup [def]
+  (dissoc def :sub))
+
 (defn from-square-def [ref def]
-  (if def
+  (when def
     (cleanup
       (cond
         (= (:id def) ref) def
         (:so def) (two-by-five-square ref def)
         :default (regular-square ref def)))))
+
+(defn sub-square-refs [ref two-by-five?]
+  (let [n (count ref)]
+    (when (and (>= n 2) (< n 6))
+      (if two-by-five?
+        (map #(str (subs ref 0 (dec (count ref))) %) ["01" 11 12 13 14 15 16 17 18 19])
+        (map #(str ref %) [1 2 3 4 5 6 7 8 9])))))

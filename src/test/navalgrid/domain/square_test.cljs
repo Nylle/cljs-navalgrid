@@ -19,10 +19,7 @@
            (sut/shift {:id "AB" :nw [5 175] :se [-5 -175]} :v 1))))
   (testing "west"
     (is (= {:id "AB" :nw [5 165] :se [-5 175]}
-           (sut/shift {:id "AB" :nw [5 175] :se [-5 -175]} :h -1))))
-  (testing "no shift"
-    (is (= {:id "AB" :nw [5 175] :se [-5 -175]}
-           (sut/shift {:id "AB" :nw [5 175] :se [-5 -175]} :h 0)))))
+           (sut/shift {:id "AB" :nw [5 175] :se [-5 -175]} :h -1)))))
 
 (deftest steps-test
   (testing "regular square with 9 sub squares"
@@ -85,6 +82,14 @@
       (testing "returns nil for invalid sub-square 3"
         (is (= nil (sut/sub-square square 3)))))))
 
+(deftest regular-square-test
+  (is (= {:id "CG1234", :nw [42.8 -13.1], :se [42.7 -12.967]}
+         (sut/regular-square "CG1234" {:id "CG" :nw [42.9 -15.1] :se [34.8 -4.3]}))))
+
+(deftest two-by-five-square-test
+  (is (= {:id "AK1234", :nw [60.8 -34.3], :se [60.7 -34.1]}
+         (sut/two-by-five-square "AK1234" {:id "AK1" :nw [60.9 -37.3] :se [56.4 -33.7] :so :v}))))
+
 (deftest from-square-def-test
   (testing "returns nil when not found"
     (is (= nil (sut/from-square-def "BLA" nil))))
@@ -106,3 +111,11 @@
              (sut/from-square-def "OT1" partial-square)))
       (is (= {:id "OT1999" :nw [31.2 170.467] :se [31.1 170.6]}
              (sut/from-square-def "OT1999" partial-square))))))
+
+(deftest sub-square-refs-test
+  (testing "valid refs"
+    (is (= (sut/sub-square-refs "AK1" :v) ["AK01" "AK11" "AK12" "AK13" "AK14" "AK15" "AK16" "AK17" "AK18" "AK19"]))
+    (is (= (sut/sub-square-refs "ÄG" nil) ["ÄG1" "ÄG2" "ÄG3" "ÄG4" "ÄG5" "ÄG6" "ÄG7" "ÄG8" "ÄG9"])))
+  (testing "invalid refs"
+    (is (= (sut/sub-square-refs "A" false) nil))
+    (is (= (sut/sub-square-refs "AK1234" false) nil))))

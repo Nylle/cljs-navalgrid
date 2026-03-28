@@ -90,7 +90,7 @@
   "Returns a collection of longitudes along the shortest possible rhumb line between longitudes lon1 and lon2 with a
   distance of (lon2-lon1)/div between them.
   Example: a rhumb line between lon1=175 and lon2=-175 crossing the anti-meridian has a length of 10. With div=5
-  the resulting collection is (175, 177, 179, -179, -177)."
+  the resulting collection is (175 177 179 -179 -177 -175)."
   [lon1 lon2 div]
   (let [dLon (- lon2 lon1)
         range' #(concat (range %1 %2 (/ (- %2 %1) div)) [lon2])]
@@ -103,7 +103,7 @@
   "Returns a collection of latitudes along a rhumb line between latitudes lat1 and lat2 with a distance of
   (lat2-lat1)/div between them.
   Example: a rhumb line between lat1=2 and lat2=-4 has a length of 6. With div=3 the resulting collection is
-  (2, 0, -2)."
+  (2 0 -2 -4)."
   [lat1 lat2 div]
   (concat (range lat1 lat2 (/ (- lat2 lat1) div)) [lat2]))
 

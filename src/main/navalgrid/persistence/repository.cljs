@@ -55,3 +55,7 @@
   (->> (concat (find-large ref) (find-irregular ref) (find-polygonal ref) (find-two-by-five ref) (find-partial ref))
        (take 1)
        (first)))
+
+(defn find-all-by-ids [refs]
+  (->> (map #(find-by-id %) refs)
+       (remove nil?)))
