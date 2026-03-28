@@ -1,6 +1,6 @@
 (ns navalgrid.domain.geo
   (:require [navalgrid.math :as math]
-            [navalgrid.core :as core]))
+            [navalgrid.utils :as utils]))
 
 (def earth-radius-nmi 3440)
 
@@ -35,7 +35,7 @@
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
   [dLat dLat' lat1]
   (let [res (/ dLat dLat')]
-    (if (core/finite? res)
+    (if (utils/finite? res)
       res
       (math/cos lat1))))
 
@@ -116,4 +116,4 @@
     (cond
       (= lat1 lat2) (map (fn [x] [lat1 x]) (lon-range lon1 lon2 div))
       (= lon1 lon2) (map (fn [x] [x lon1]) (lat-range lat1 lat2 div))
-      :else (throw (core/error (str "Invalid bearing from " coord1 " to " coord2 ". Must be one of 0°, 90°, 180°, 270°."))))))
+      :else (throw (utils/error (str "Invalid bearing from " coord1 " to " coord2 ". Must be one of 0°, 90°, 180°, 270°."))))))

@@ -10,11 +10,11 @@
  :dev-http {8080 "public"
             3001 "out/test"}
 
- :builds   {:frontend     {:target  :browser
+ :builds   {:frontend     {:target           :browser
                            :compiler-options {:infer-externs :auto}
-                           :modules {:main {:init-fn navalgrid.app/run}}}
+                           :modules          {:main {:init-fn navalgrid.core/init}}}
             :test         {:target    :node-test
                            :output-to "out/node-tests.js"}
-            :browser-test {:target   :browser-test
-                           :test-dir "out/test"
+            :browser-test {:target           :browser-test
+                           :test-dir         "out/test"
                            :compiler-options {:preloads [cljs-devtools.core]}}}}

@@ -1,6 +1,6 @@
-(ns navalgrid.core-test
+(ns navalgrid.utils-test
   (:require [cljs.test :refer [deftest is testing]]
-            [navalgrid.core :as sut]))
+            [navalgrid.utils :as sut]))
 
 (deftest finite?-test
   (is (= true (sut/finite? 1)))

@@ -1,7 +1,7 @@
 (ns navalgrid.persistence.repository
   (:require [navalgrid.domain.square :as square]
             [navalgrid.persistence.data :as data]
-            [navalgrid.core :as core]))
+            [navalgrid.utils :as utils]))
 
 (defn extract-from-group [ref group]
   (let [{:keys [ids nw se o] :or {o :h}} group
@@ -14,13 +14,13 @@
 (defn find-large [ref]
   (let [large (apply str (take 2 ref))]
     (->> (concat data/large-regular-squares data/large-partial-squares)
-         (filter #(core/seq-contains? (:ids %) large))
+         (filter #(utils/seq-contains? (:ids %) large))
          (map #(extract-from-group large %))
          (map #(square/from-square-def ref %)))))
 
 (defn find-irregular [ref]
   (->> data/irregular-squares
-       (filter #(core/seq-contains? (:ids %) ref))
+       (filter #(utils/seq-contains? (:ids %) ref))
        (map #(extract-from-group ref %))))
 
 (defn find-polygonal [ref]
@@ -38,7 +38,7 @@
 (defn find-two-by-five [ref]
   (let [key (two-by-five-search-key ref)]
     (->> (concat data/two-by-five-squares)
-         (filter #(core/seq-contains? (:ids %) key))
+         (filter #(utils/seq-contains? (:ids %) key))
          (map #(extract-from-group key %))
          (map #(square/from-square-def ref %)))))
 

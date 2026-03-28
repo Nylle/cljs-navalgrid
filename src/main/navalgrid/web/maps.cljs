@@ -1,4 +1,4 @@
-(ns navalgrid.web.map
+(ns navalgrid.web.maps
   (:require [navalgrid.web.maplibre :as m]))
 
 (def map-properties {:style  "marinequadratkarte.json"

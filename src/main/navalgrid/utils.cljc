@@ -1,4 +1,4 @@
-(ns navalgrid.core)
+(ns navalgrid.utils)
 
 (defn finite? [x]
   #?(:clj  (and (number? x) (<= (- Double/MAX_VALUE) x Double/MAX_VALUE))

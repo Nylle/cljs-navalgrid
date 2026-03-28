@@ -1,5 +1,5 @@
 (ns navalgrid.domain.square
-  (:require [navalgrid.core :as core]
+  (:require [navalgrid.utils :as utils]
             [navalgrid.math :as math]
             [navalgrid.domain.geo :as geo]))
 
@@ -30,7 +30,7 @@
   [n sub]
   (if (nil? sub)
     [(mod (dec n) 3) (quot (dec n) 3)]
-    (let [i (core/index-of (vec (flatten sub)) n)]
+    (let [i (utils/index-of (vec (flatten sub)) n)]
       (when i
         [(mod i (count (first sub))) (quot i (count (first sub)))]))))
 
@@ -51,7 +51,7 @@
   Example: for ref CG1234 and def CG, the sub-square will be calculated based on CG
   Example 2: for ref CG and def CG, def will be returned"
   [ref def]
-  (loop [refs (map core/str->int (drop (count (:id def)) ref))
+  (loop [refs (map utils/str->int (drop (count (:id def)) ref))
          square def]
     (if (or (nil? square) (empty? refs))
       square
@@ -71,7 +71,7 @@
         [e s] (if (= so :v) [2 5] [5 2])
         [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
         [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))
-        refs (map core/str->int (seq (drop 2 ref)))
+        refs (map utils/str->int (seq (drop 2 ref)))
         n (if (= 0 (first refs)) 10 (second refs))]
     (if-let [[h v] (steps n (two-by-five-subs so))]
       (regular-square
