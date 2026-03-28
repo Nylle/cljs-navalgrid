@@ -1,13 +1,13 @@
 (ns navalgrid.web.maps
   (:require [navalgrid.web.maplibre :as m]))
 
-(def map-properties {:style  "marinequadratkarte.json"
+(def map-properties {:style  "/marinequadratkarte.json"
                      :center [0 0]
                      :zoom   0})
 
 (defn create-fn
   "Returns a fn that creates a new map singleton."
-  [ref] (fn [_] (m/create! ref map-properties)))
+  [parent init-fn] (fn [_] (m/create! parent map-properties init-fn)))
 
 (defn destroy-fn
   "Returns a fn that destroys the previously created map singleton."
@@ -74,26 +74,25 @@
                        :properties {}})}})
 
 (defn set-square! [square]
-  (when square
-    (let [outer "outer"
-          inner "inner"
-          subs (:sub-squares square)]
-      (m/remove-layer! outer)
-      (m/remove-source! outer)
-      (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
-      (m/add-layer! {:id     outer
-                     :type   "line"
-                     :source outer
-                     :layout {:line-cap "square"}
-                     :paint  {:line-color "#038D3C"
-                              :line-width 3}})
-      (m/remove-layer! inner)
-      (m/remove-source! inner)
-      (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
-      (m/add-layer! {:id     inner
-                     :type   "line"
-                     :source inner
-                     :layout {:line-cap "square"}
-                     :paint  {:line-color "#038D3C"
-                              :line-width 2}})
-      (m/fit-bounds! (map coord->lngLat (bounds square))))))
+  (let [outer "outer" inner "inner"]
+    (m/remove-layer! outer)
+    (m/remove-source! outer)
+    (m/remove-layer! inner)
+    (m/remove-source! inner)
+    (when square
+      (let [subs (:sub-squares square)]
+        (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
+        (m/add-layer! {:id     outer
+                       :type   "line"
+                       :source outer
+                       :layout {:line-cap "square"}
+                       :paint  {:line-color "#038D3C"
+                                :line-width 3}})
+        (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
+        (m/add-layer! {:id     inner
+                       :type   "line"
+                       :source inner
+                       :layout {:line-cap "square"}
+                       :paint  {:line-color "#038D3C"
+                                :line-width 2}})
+        (m/fit-bounds! (map coord->lngLat (bounds square)))))))

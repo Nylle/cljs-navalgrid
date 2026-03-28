@@ -3,10 +3,11 @@
 
 (defonce map-inst (atom nil))
 
-(defn create! [ref props]
+(defn create! [ref props f]
   (when-let [el @ref]
     (let [m (maplibregl/Map. (clj->js (assoc props :container el)))]
       (.addControl m (maplibregl/NavigationControl.))
+      (.on m "load" f)
       (reset! map-inst m))))
 
 (defn destroy! []
