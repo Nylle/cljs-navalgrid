@@ -29,7 +29,7 @@
        (map (fn [x] {:id ref :poly (:poly x)}))))
 
 (defn two-by-five-search-key [ref]
-  (if-let [subs (seq (drop 2 ref))]
+  (when-let [subs (seq (drop 2 ref))]
     (let [large (apply str (take 2 ref))]
       (if (and (= "0" (first subs)) (> (count subs) 1))
         (str large (first (drop 1 subs)))
