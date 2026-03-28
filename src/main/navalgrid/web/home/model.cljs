@@ -1,4 +1,4 @@
-(ns navalgrid.web.model
+(ns navalgrid.web.home.model
   (:require [clojure.string :as str]
             [navalgrid.domain.square :as square]
             [navalgrid.persistence.repository :as repo]))

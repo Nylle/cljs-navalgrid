@@ -1,29 +1,13 @@
-(ns navalgrid.web.home
+(ns navalgrid.web.home.view
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
-            [navalgrid.web.router :as router]
-            [navalgrid.web.model :as model]
-            [navalgrid.web.maps :as m]))
+            [navalgrid.web.maps :as m]
+            [navalgrid.web.home.events :as e]))
 
 (rf/reg-fx :run-do (fn [f] (f)))
-
-(rf/reg-event-db :init (fn [db _]
-                         (let [ref (-> (router/get-square-ref-from-url)
-                                       (model/str->ref))
-                               square (model/with-sub-squares ref)]
-                           (assoc db :query ref :square square))))
-
-(rf/reg-event-fx :query/changed (fn [{:keys [db]} [_ s]]
-                                  (let [ref (model/str->ref s)
-                                        square (model/with-sub-squares ref)]
-                                    {:db     (assoc db :query ref :square square)
-                                     :run-do (fn []
-                                               (m/set-square! square)
-                                               (router/set-square-url! square))})))
-
-(rf/reg-event-fx :map/loaded (fn [{:keys [db]} _]
-                               (let [square (:square db)]
-                                 {:run-do (fn [] (m/set-square! square))})))
+(rf/reg-event-db :init e/init-db)
+(rf/reg-event-fx :query/changed e/query-changed-fx)
+(rf/reg-event-fx :map/loaded e/map-loaded-fx)
 
 (rf/reg-sub :query (fn [db _] (:query db)))
 (rf/reg-sub :square (fn [db _] (:square db)))
