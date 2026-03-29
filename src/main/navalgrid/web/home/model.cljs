@@ -4,11 +4,12 @@
             [navalgrid.persistence.repository :as repo]))
 
 (defn str->ref [s]
-  (-> (str/upper-case s)
-      (str/replace #"[^ÄA-Z0-9]" "")
-      (subs 0 6)))
+  (when s (-> (str/upper-case s)
+              (str/replace #"[^ÄA-Z0-9]" "")
+              (subs 0 6))))
 
 (defn with-sub-squares [ref]
   (when-let [square (repo/find-by-id ref)]
     (assoc square :sub-squares (-> (square/sub-square-refs (:id square) (:so square))
-                                   (repo/find-all-by-ids)))))
+                                   (repo/find-all-by-ids))
+                  :center (square/center-coord square))))

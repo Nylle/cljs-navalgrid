@@ -8,8 +8,8 @@
                 (model/str->ref))]
     (assoc db :query ref :square (model/with-sub-squares ref))))
 
-(defn query-changed-fx [{:keys [db]} [_ s]]
-  (let [ref (model/str->ref s)
+(defn query-changed-fx [{:keys [db]} [_ query]]
+  (let [ref (model/str->ref query)
         square (model/with-sub-squares ref)]
     {:db     (assoc db :query ref :square square)
      :run-do (fn []

@@ -86,9 +86,22 @@
   (is (= {:id "CG1234", :nw [42.8 -13.1], :se [42.7 -12.967]}
          (sut/regular-square "CG1234" {:id "CG" :nw [42.9 -15.1] :se [34.8 -4.3]}))))
 
+(deftest two-by-five-subs-test
+  (is (= [[1 2] [3 4] [5 6] [7 8] [9 10]]
+         (sut/two-by-five-subs :v)) "vertical")
+  (is (= [[1 2 3 4 5] [6 7 8 9 10]]
+         (sut/two-by-five-subs :h)) "horizontal")
+  (is (= [[1 2 3 4 5] [6 7 8 9 10]]
+         (sut/two-by-five-subs nil)) "nil"))
+
 (deftest two-by-five-square-test
   (is (= {:id "AK1234", :nw [60.8 -34.3], :se [60.7 -34.1]}
          (sut/two-by-five-square "AK1234" {:id "AK1" :nw [60.9 -37.3] :se [56.4 -33.7] :so :v}))))
+
+(deftest cleanup-test
+  (testing "returns square without :sub"
+    (is (= {:id "OT" :nw [33.8 167] :se [25.7 170.6]}
+           (sut/cleanup {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]})))))
 
 (deftest from-square-def-test
   (testing "returns nil when not found"
@@ -119,3 +132,16 @@
   (testing "invalid refs"
     (is (= (sut/sub-square-refs "A" false) nil))
     (is (= (sut/sub-square-refs "AK1234" false) nil))))
+
+(deftest bounds-test
+  (is (= [[51 -11.5] [51 -7] [48.3 -7] [48.3 -11.5]]
+         (sut/bounds {:nw [51 -11.5] :se [48.3 -7]}))
+      "for the rectangle BF1")
+  (is (= [[51 -11.5] [51 3.5] [42.9 3.5] [42.9 -11.5]]
+         (sut/bounds {:poly [[51 -11.5] [51 3.5] [50.1 3.5] [50.1 2] [49.2 2] [49.2 0.5] [48.3 0.5] [48.3 -1] [45.6 -1] [45.6 -0.7] [42.9 -0.7] [42.9 -11.5]]}))
+      "for the polygon BF"))
+
+(deftest center-coord-test
+  (is (= [1 1] (sut/center-coord {:nw [2 0] :se [0 2]})))
+  (is (= [83.75 177.125] (sut/center-coord {:nw [85.1 167] :se [82.4 -172.75]})) "across anti-meridian")
+  (is (= [-1.65 0.35] (sut/center-coord {:nw [2.4 -3.7] :se [-5.7 4.4]})) "across equator"))

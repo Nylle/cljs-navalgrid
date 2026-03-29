@@ -2,6 +2,7 @@
   (:require ["maplibre-gl" :as maplibregl]))
 
 (defonce map-inst (atom nil))
+(defonce markers (atom nil))
 
 (defn create! [ref props f]
   (when-let [el @ref]
@@ -39,3 +40,19 @@
   (when-let [^js m @map-inst]
     (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 100}))
     (reset! map-inst m)))
+
+(defn add-marker! [text lnglat class]
+  (when-let [^js m @map-inst]
+    (let [div (js/document.createElement "div")
+          _ (set! (.-className div) class)
+          _ (set! (.-textContent div) text)]
+      (let [marker (-> (maplibregl/Marker. #js {:element div})
+                       (.setLngLat (clj->js lnglat))
+                       (.addTo m))]
+        (swap! markers assoc text marker)))
+      (reset! map-inst m)))
+
+(defn clear-markers! []
+  (doseq [[_ marker] @markers]
+    (.remove marker))
+  (reset! markers {}))

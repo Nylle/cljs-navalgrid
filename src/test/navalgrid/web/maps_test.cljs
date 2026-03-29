@@ -5,9 +5,6 @@
 (deftest coord->lngLat-test
   (is (= [33 99] (sut/coord->lngLat [99 33]))))
 
-(deftest coords-test
-  (is (= [[1 5] [1 9] [2 9] [2 5]] (sut/coords [1 5] [2 9]))))
-
 (deftest bounds-test
   (is (= [[48.3 -11.5] [51 -7]] (sut/bounds {:nw [51 -11.5] :se [48.3 -7]}))
       "for the rectangle BF1")

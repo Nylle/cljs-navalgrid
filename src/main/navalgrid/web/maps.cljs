@@ -1,5 +1,6 @@
 (ns navalgrid.web.maps
-  (:require [navalgrid.web.maplibre :as m]))
+  (:require [navalgrid.domain.square :as s]
+            [navalgrid.web.maplibre :as m]))
 
 (def map-properties {:style  "/marinequadratkarte.json"
                      :center [0 0]
@@ -18,18 +19,10 @@
   [[lat lon]]
   [lon lat])
 
-(defn coords
-  "Returns a vector of all four coordinates for a rectangle defined by the provided NW and SE coordinates."
-  [nw se]
-  [nw [(first nw) (second se)] se [(first se) (second nw)]])
-
 (defn bounds
   "Returns a vector of the SW and NE coordinates of the smallest possible enclosing rectangle for the provided square."
-  [{:keys [nw se poly]}]
-  (if poly
-    (let [lats (map first poly)
-          lons (map second poly)]
-      [[(apply min lats) (apply min lons)] [(apply max lats) (apply max lons)]])
+  [square]
+  (let [[nw _ se _] (s/bounds square)]
     [[(first se) (second nw)] [(first nw) (second se)]]))
 
 (defn fix-for-antimeridian
@@ -51,7 +44,7 @@
 (defn square->polygon
   "Returns a vector of lnglats for the provided square where the first coord is appended again to form a 'ring'."
   [{:keys [nw se poly]}]
-  (let [coords (or poly (coords nw se))]
+  (let [coords (or poly (s/bounds {:nw nw :se se}))]
     (->> (conj coords (first coords))
          (map coord->lngLat)
          (fix-for-antimeridian))))
@@ -61,8 +54,7 @@
    :data {:type       "Feature",
           :geometry   {:type        "Polygon",
                        :coordinates [lnglats]},
-          :properties {}}}
-  )
+          :properties {}}})
 
 (defn polygons->geojson [polygons]
   {:type "geojson"
@@ -75,6 +67,7 @@
 
 (defn set-square! [square]
   (let [outer "outer" inner "inner"]
+    (m/clear-markers!)
     (m/remove-layer! outer)
     (m/remove-source! outer)
     (m/remove-layer! inner)
@@ -88,6 +81,7 @@
                        :layout {:line-cap "square"}
                        :paint  {:line-color "#038D3C"
                                 :line-width 3}})
+        (m/add-marker! (:id square) (coord->lngLat (:center square)) "marker-outer")
         (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
         (m/add-layer! {:id     inner
                        :type   "line"

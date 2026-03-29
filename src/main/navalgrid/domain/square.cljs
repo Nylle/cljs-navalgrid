@@ -57,8 +57,8 @@
       square
       (recur (rest refs) (sub-square square (first refs))))))
 
-(defn two-by-five-subs [o]
-  (if (= o :v)
+(defn two-by-five-subs [so]
+  (if (= so :v)
     [[1 2] [3 4] [5 6] [7 8] [9 10]]
     [[1 2 3 4 5] [6 7 8 9 10]]))
 
@@ -97,3 +97,24 @@
       (if two-by-five?
         (map #(str (subs ref 0 (dec (count ref))) %) ["01" 11 12 13 14 15 16 17 18 19])
         (map #(str ref %) [1 2 3 4 5 6 7 8 9])))))
+
+(defn bounds
+  "Returns a vector of the NW, NE, SE, and SW coordinates of the smallest possible enclosing rectangle for the provided square."
+  [{:keys [nw se poly]}]
+  (let [[nw se] (if poly
+                  (let [lats (map first poly)
+                        lons (map second poly)]
+                    [[(apply max lats) (apply min lons)]
+                     [(apply min lats) (apply max lons)]])
+                  [nw se])
+        ne [(first nw) (second se)]
+        sw [(first se) (second nw)]]
+    [nw ne se sw]))
+
+(defn center-coord
+  "Returns the center coord of the bounds of the provided square."
+  [square]
+  (let [[nw ne _ sw] (bounds square)
+        h (second (second (geo/simple-rhumb-division nw ne 2)))
+        v (first (second (geo/simple-rhumb-division nw sw 2)))]
+    [(math/round 3 v) (math/round 3 h)]))
