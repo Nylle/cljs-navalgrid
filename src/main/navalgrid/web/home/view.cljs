@@ -39,9 +39,8 @@
       :default [regular res])))
 
 (defn map-view [parent]
-  [:div {:id    "map"
-         :ref   (fn [el] (reset! parent el))
-         :style {:width "100%" :height "100vh"}}])
+  [:div {:id  "map"
+         :ref (fn [el] (reset! parent el))}])
 
 (defn canvas []
   (let [this (r/atom nil)]
@@ -51,6 +50,22 @@
        :component-will-unmount (m/destroy-fn)
        :reagent-render         (fn [] [map-view this])})))
 
+(defn attribution []
+  [:span
+   "Herausgegeben von " [:a {:href "https://openfreemap.org/" :target "_blank" :rel "noopener noreferrer"} "OPENFREEMAP"]
+   " " [:a {:href "https://openmaptiles.org/" :target "_blank" :rel "noopener noreferrer"} "© OPENMAPTILES"]
+   " Data from " [:a {:href "https://www.openstreetmap.org/copyright" :target "_blank" :rel "noopener noreferrer"} "OPENSTREETMAP"]])
+
+(defn map-container []
+  [:div {:id "map-container"}
+   [:div {:id "canvas-top"}
+    [:span.left (str "Quadrat " @(rf/subscribe [:query]))]
+    [:span.center "Massstab 1:xxxxx"]
+    [:span.right "Für die Navigierung nicht zu benutzen"]]
+   [canvas]
+   [:div {:id "canvas-bottom"}
+    [attribution]]])
+
 (defn body []
   [:<>
    [:aside
@@ -58,7 +73,7 @@
     [query-input]
     [output]]
    [:main
-    [canvas]]])
+    [map-container]]])
 
 (defn init []
   (rf/dispatch [:init])

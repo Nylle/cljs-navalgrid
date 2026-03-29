@@ -4,7 +4,8 @@
 
 (def map-properties {:style  "/marinequadratkarte.json"
                      :center [0 0]
-                     :zoom   0})
+                     :zoom   0
+                     :attributionControl false})
 
 (defn create-fn
   "Returns a fn that creates a new map singleton."

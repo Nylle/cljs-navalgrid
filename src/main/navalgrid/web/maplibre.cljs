@@ -6,9 +6,10 @@
 
 (defn create! [ref props f]
   (when-let [el @ref]
-    (let [m (maplibregl/Map. (clj->js (assoc props :container el)))]
+    (let [^js m (maplibregl/Map. (clj->js (assoc props :container el)))]
       (.addControl m (maplibregl/NavigationControl.))
       (.on m "load" f)
+      (.on m "load" (fn [] (.setCenter m (clj->js (.getCenter m)))))
       (reset! map-inst m))))
 
 (defn destroy! []
@@ -38,7 +39,7 @@
 
 (defn fit-bounds! [[sw-lnglat ne-lnglat]]
   (when-let [^js m @map-inst]
-    (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 100}))
+    (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 50}))
     (reset! map-inst m)))
 
 (defn add-marker! [text lnglat class]
