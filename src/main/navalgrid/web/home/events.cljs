@@ -19,3 +19,7 @@
 (defn map-loaded-fx [{:keys [db]} _]
   (let [square (:square db)]
     {:run-do (fn [] (m/set-square! square))}))
+
+(defn map-moved-db [db _]
+  (let [scale (m/scale-denominator)]
+    (assoc db :scale scale)))

@@ -8,9 +8,11 @@
 (rf/reg-event-db :init e/init-db)
 (rf/reg-event-fx :query/changed e/query-changed-fx)
 (rf/reg-event-fx :map/loaded e/map-loaded-fx)
+(rf/reg-event-db :map/moved e/map-moved-db)
 
 (rf/reg-sub :query (fn [db _] (:query db)))
 (rf/reg-sub :square (fn [db _] (:square db)))
+(rf/reg-sub :scale (fn [db _] (:scale db)))
 
 (defn coord [x]
   (str (first x) ", " (second x)))
@@ -46,7 +48,7 @@
   (let [this (r/atom nil)]
     (r/create-class
       {:display-name           "canvas"
-       :component-did-mount    (m/create-fn this #(rf/dispatch [:map/loaded]))
+       :component-did-mount    (m/create-fn this #(rf/dispatch [:map/loaded]) #(rf/dispatch [:map/moved]))
        :component-will-unmount (m/destroy-fn)
        :reagent-render         (fn [] [map-view this])})))
 
@@ -60,7 +62,7 @@
   [:div {:id "map-container"}
    [:div {:id "canvas-top"}
     [:span.left (str "Quadrat " @(rf/subscribe [:query]))]
-    [:span.center "Massstab 1:xxxxx"]
+    [:span.center (str "Massstab 1 : " @(rf/subscribe [:scale]))]
     [:span.right "Für die Navigierung nicht zu benutzen"]]
    [canvas]
    [:div {:id "canvas-bottom"}

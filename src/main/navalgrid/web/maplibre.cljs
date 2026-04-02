@@ -1,21 +1,32 @@
 (ns navalgrid.web.maplibre
-  (:require ["maplibre-gl" :as maplibregl]))
+  (:require ["maplibre-gl" :as maplibregl]
+            [navalgrid.math :as math]))
 
 (defonce map-inst (atom nil))
 (defonce markers (atom nil))
 
-(defn create! [ref props f]
+(defn create! [ref props loaded-fn moved-fn]
   (when-let [el @ref]
     (let [^js m (maplibregl/Map. (clj->js (assoc props :container el)))]
       (.addControl m (maplibregl/NavigationControl.))
-      (.on m "load" f)
+      (.on m "load" loaded-fn)
       (.on m "load" (fn [] (.setCenter m (clj->js (.getCenter m)))))
+      (.on m "moveend" moved-fn)
       (reset! map-inst m))))
 
 (defn destroy! []
   (when-let [^js m @map-inst]
     (.remove m)
     (reset! map-inst nil)))
+
+(defn get-center []
+  (when-let [^js m @map-inst]
+    (let [c (.getCenter m)]
+      [(.-lng c) (.-lat c)])))
+
+(defn get-zoom []
+  (when-let [^js m @map-inst]
+    (.getZoom m)))
 
 (defn add-source! [id geojson]
   (when-let [^js m @map-inst]
@@ -51,9 +62,23 @@
                        (.setLngLat (clj->js lnglat))
                        (.addTo m))]
         (swap! markers assoc text marker)))
-      (reset! map-inst m)))
+    (reset! map-inst m)))
 
 (defn clear-markers! []
   (doseq [[_ marker] @markers]
     (.remove marker))
   (reset! markers {}))
+
+(defn meters-per-pixel [lat zoom]
+  (let [R 40075016.686
+        lat' (math/to-radians lat)]
+    (-> (/ R 256)
+        (* (math/cos lat'))
+        (/ (math/pow 2 zoom)))))
+
+(defn get-scale-denominator [lat zoom]
+  (let [dpi 96
+        mpi 0.0254]
+    (-> (meters-per-pixel lat zoom)
+        (* dpi)
+        (/ mpi))))

@@ -1,6 +1,7 @@
 (ns navalgrid.web.maps
   (:require [navalgrid.domain.square :as s]
-            [navalgrid.web.maplibre :as m]))
+            [navalgrid.web.maplibre :as m]
+            [navalgrid.math :as math]))
 
 (def map-properties {:style  "/marinequadratkarte.json"
                      :center [0 0]
@@ -9,7 +10,7 @@
 
 (defn create-fn
   "Returns a fn that creates a new map singleton."
-  [parent init-fn] (fn [_] (m/create! parent map-properties init-fn)))
+  [parent loaded-fn moved-fn] (fn [_] (m/create! parent map-properties loaded-fn moved-fn)))
 
 (defn destroy-fn
   "Returns a fn that destroys the previously created map singleton."
@@ -19,6 +20,11 @@
   "Returns a vector of the longitude and latitude for the provided [lat lon]."
   [[lat lon]]
   [lon lat])
+
+(defn scale-denominator []
+  (let [lat (second (m/get-center))
+        zoom (m/get-zoom)]
+    (math/round -2 (m/get-scale-denominator lat zoom))))
 
 (defn bounds
   "Returns a vector of the SW and NE coordinates of the smallest possible enclosing rectangle for the provided square."
