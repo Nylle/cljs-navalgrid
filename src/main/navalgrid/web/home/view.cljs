@@ -2,7 +2,8 @@
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
             [navalgrid.web.maps :as m]
-            [navalgrid.web.home.events :as e]))
+            [navalgrid.web.home.events :as e]
+            [navalgrid.web.home.model :as model]))
 
 (rf/reg-fx :run-do (fn [f] (f)))
 (rf/reg-event-db :init e/init-db)
@@ -58,11 +59,14 @@
    " " [:a {:href "https://openmaptiles.org/" :target "_blank" :rel "noopener noreferrer"} "© OPENMAPTILES"]
    " Data from " [:a {:href "https://www.openstreetmap.org/copyright" :target "_blank" :rel "noopener noreferrer"} "OPENSTREETMAP"]])
 
+(defn scale []
+  (str "Massstab 1 : " (model/format-scale @(rf/subscribe [:scale]))))
+
 (defn map-container []
   [:div {:id "map-container"}
    [:div {:id "canvas-top"}
     [:span.left (str "Quadrat " @(rf/subscribe [:query]))]
-    [:span.center (str "Massstab 1 : " @(rf/subscribe [:scale]))]
+    [:span.center [scale]]
     [:span.right "Für die Navigierung nicht zu benutzen"]]
    [canvas]
    [:div {:id "canvas-bottom"}

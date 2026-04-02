@@ -44,4 +44,5 @@
                         {:id "AK19" :nw [57.3 -37.3] :se [56.4 -35.5]}]
           :center      [58.65 -35.5]}) "two-by-five"))
 
-
+(deftest format-scale-test
+  (is (= "25 000 000" (sut/format-scale 25000000))))

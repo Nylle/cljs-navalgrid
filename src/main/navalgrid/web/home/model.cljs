@@ -13,3 +13,12 @@
     (assoc square :sub-squares (-> (square/sub-square-refs (:id square) (:so square))
                                    (repo/find-all-by-ids))
                   :center (square/center-coord square))))
+
+(defn format-scale [n]
+  (->> (long n)
+       str
+       reverse
+       (partition-all 3)
+       (map #(apply str (reverse %)))
+       reverse
+       (str/join " ")))
