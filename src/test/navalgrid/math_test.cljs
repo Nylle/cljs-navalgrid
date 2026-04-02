@@ -21,6 +21,9 @@
     (is (= -25.699 (sut/round 3 -25.699111111111116)))
     (is (= -25.7 (sut/round 3 -25.699999999999996))))
   (testing "to the digit's power counted from front, when negative"
+    (is (= -444830000 (sut/round -5 -444830050.3440809)))
+    (is (= -45000 (sut/round -2 -45483.3440809)))
+    (is (= -44000 (sut/round -2 -44483.3440809)))
     (is (= 44000 (sut/round -2 44483.3440809)))
     (is (= 45000 (sut/round -2 45483.3440809)))
     (is (= 4400000 (sut/round -2 4448300.3440809)))
