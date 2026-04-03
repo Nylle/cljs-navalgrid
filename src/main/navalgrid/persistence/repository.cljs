@@ -1,6 +1,7 @@
 (ns navalgrid.persistence.repository
   (:require [navalgrid.domain.square :as square]
             [navalgrid.persistence.data :as data]
+            [navalgrid.persistence.regions :as regions]
             [navalgrid.utils :as utils]))
 
 (defn extract-from-group [ref group]
@@ -65,3 +66,10 @@
   (let [filter-fn #(= 2 (count %))]
     (->> (concat data/large-regular-squares data/large-partial-squares data/irregular-squares data/polygonal-squares)
          (mapcat #(extract-all % filter-fn)))))
+
+(defn find-region [ref]
+  (let [large (apply str (take 2 ref))]
+    (->> regions/all
+         (filter #(utils/seq-contains? (:ids %) large))
+         (first)
+         (:name))))

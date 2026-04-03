@@ -16,8 +16,8 @@
 
 (defn region [ref]
   (if ref
-    (str "Square " ref)
-    "The World"))
+    (repo/find-region ref)
+    "Weltkarte"))
 
 (defn format-scale [n]
   (->> (long n)

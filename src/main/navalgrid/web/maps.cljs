@@ -82,7 +82,7 @@
                          :source "all"
                          :layout {:line-cap "square"}
                          :paint  {:line-color "#038D3C"
-                                  :line-width 2}})
+                                  :line-width 1}})
     (m/set-center! [0 40])
     (m/set-zoom! 1)))
 

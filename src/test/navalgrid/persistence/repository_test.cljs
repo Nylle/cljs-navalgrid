@@ -104,3 +104,14 @@
   (is (= 536 (count (sut/all-large-squares))))
   (is (= {:id "ÄJ" :nw [85.2 -76] :se [77.1 -35.5]} (first (sut/all-large-squares))))
   (is (= {:id "XN" :poly [[82.4 -103] [82.4 -76] [77.1 -76] [77.1 -85] [74.3 -85] [74.3 -103]]} (last (sut/all-large-squares)))))
+
+(deftest find-region-test
+  (is (= "Nördliches Eismeer" (sut/find-region "YC")))
+  (is (= "Europäisches Nordmeer" (sut/find-region "AF")))
+  (is (= "Baffin-Bucht und Davisstraße" (sut/find-region "ÄD")))
+  (is (= "Hudson-Bucht und Hudsonstraße" (sut/find-region "ÄC")))
+  (is (= "Davisstraße" (sut/find-region "ÄB")))
+  (is (= "Labradorsee" (sut/find-region "AH")))
+  (is (= "Ostsee" (sut/find-region "AO")))
+  (is (= "Indischer Ozean" (sut/find-region "KM")))
+  (is (= 536 (count (map #(sut/find-region (:id %)) (sut/all-large-squares))))))
