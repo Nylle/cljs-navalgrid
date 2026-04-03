@@ -24,9 +24,19 @@
     (let [c (.getCenter m)]
       [(.-lng c) (.-lat c)])))
 
+(defn set-center! [lnglat]
+  (when-let [^js m @map-inst]
+    (.setCenter m (clj->js lnglat))
+    (reset! map-inst m)))
+
 (defn get-zoom []
   (when-let [^js m @map-inst]
     (.getZoom m)))
+
+(defn set-zoom! [zoom]
+  (when-let [^js m @map-inst]
+    (.setZoom m zoom)
+    (reset! map-inst m)))
 
 (defn add-source! [id geojson]
   (when-let [^js m @map-inst]

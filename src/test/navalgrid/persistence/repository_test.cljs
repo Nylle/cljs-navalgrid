@@ -91,3 +91,16 @@
           {:id "AK0199" :nw [56.5 -33.9] :se [56.4 -33.7]}
           {:id "AL5899" :nw [53.8 -20.667] :se [53.7 -20.5]}
           {:id "AD98" :nw [60 -39.1] :se [59.1 -37.3]}])))
+
+(deftest extract-all-test
+  (testing "returns all squares in group without filtering"
+    (is (= (sut/extract-all {:ids ["AB" "AB1" "AC"] :nw [2 2] :se [-2 -2]} #())
+           [{:id "AB" :nw [2 2] :se [-2 -2]} {:id "AB1" :nw [2 -2] :se [-2 -6]} {:id "AC" :nw [2 -6] :se [-2 -10]}])))
+  (testing "returns all squares in group whose id matches filter"
+    (is (= (sut/extract-all {:ids ["A" "AB1" "AC"] :nw [2 2] :se [-2 -2]} #(= 2 (count %)))
+           [{:id "AC" :nw [2 -6] :se [-2 -10]}]))))
+
+(deftest all-large-squares-test
+  (is (= 536 (count (sut/all-large-squares))))
+  (is (= {:id "ÄJ" :nw [85.2 -76] :se [77.1 -35.5]} (first (sut/all-large-squares))))
+  (is (= {:id "XN" :poly [[82.4 -103] [82.4 -76] [77.1 -76] [77.1 -85] [74.3 -85] [74.3 -103]]} (last (sut/all-large-squares)))))

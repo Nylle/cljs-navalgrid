@@ -14,6 +14,7 @@
 (rf/reg-sub :query (fn [db _] (:query db)))
 (rf/reg-sub :square (fn [db _] (:square db)))
 (rf/reg-sub :scale (fn [db _] (:scale db)))
+(rf/reg-sub :region (fn [db _] (:region db)))
 
 (defn coord [x]
   (str (first x) ", " (second x)))
@@ -59,13 +60,16 @@
    " " [:a {:href "https://openmaptiles.org/" :target "_blank" :rel "noopener noreferrer"} "© OPENMAPTILES"]
    " Data from " [:a {:href "https://www.openstreetmap.org/copyright" :target "_blank" :rel "noopener noreferrer"} "OPENSTREETMAP"]])
 
+(defn region []
+  @(rf/subscribe [:region]))
+
 (defn scale []
   (str "Massstab 1 : " (model/format-scale @(rf/subscribe [:scale]))))
 
 (defn map-container []
   [:div {:id "map-container"}
    [:div {:id "canvas-top"}
-    [:span.left (str "Quadrat " @(rf/subscribe [:query]))]
+    [:span.left [region]]
     [:span.center [scale]]
     [:span.right "Für die Navigierung nicht zu benutzen"]]
    [canvas]

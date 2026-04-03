@@ -14,6 +14,11 @@
                                    (repo/find-all-by-ids))
                   :center (square/center-coord square))))
 
+(defn region [ref]
+  (if ref
+    (str "Square " ref)
+    "The World"))
+
 (defn format-scale [n]
   (->> (long n)
        str

@@ -1,11 +1,12 @@
 (ns navalgrid.web.maps
   (:require [navalgrid.domain.square :as s]
+            [navalgrid.persistence.repository :as repo]
             [navalgrid.web.maplibre :as m]
             [navalgrid.math :as math]))
 
 (def map-properties {:style  "/marinequadratkarte.json"
-                     :center [0 0]
-                     :zoom   0
+                     :center [0 40]
+                     :zoom   1
                      :attributionControl false})
 
 (defn create-fn
@@ -72,6 +73,23 @@
                                     :coordinates [lnglats]}
                        :properties {}})}})
 
+(defn draw-all-large-squares! []
+  (let [squares (repo/all-large-squares)
+        source (->> (mapv square->polygon squares) (polygons->geojson))]
+    (m/add-source! "all" source)
+    (m/add-layer! {:id     "all"
+                         :type   "line"
+                         :source "all"
+                         :layout {:line-cap "square"}
+                         :paint  {:line-color "#038D3C"
+                                  :line-width 2}})
+    (m/set-center! [0 40])
+    (m/set-zoom! 1)))
+
+(defn remove-all-squares! []
+  (m/remove-layer! "all")
+  (m/remove-source! "all"))
+
 (defn set-square! [square]
   (let [outer "outer" inner "inner"]
     (m/clear-markers!)
@@ -79,7 +97,8 @@
     (m/remove-source! outer)
     (m/remove-layer! inner)
     (m/remove-source! inner)
-    (when square
+    (remove-all-squares!)
+    (if square
       (let [subs (:sub-squares square)]
         (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
         (m/add-layer! {:id     outer
@@ -96,4 +115,5 @@
                        :layout {:line-cap "square"}
                        :paint  {:line-color "#038D3C"
                                 :line-width 2}})
-        (m/fit-bounds! (map coord->lngLat (bounds square)))))))
+        (m/fit-bounds! (map coord->lngLat (bounds square))))
+      (draw-all-large-squares!))))

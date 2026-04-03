@@ -4,12 +4,14 @@
             [navalgrid.utils :as utils]))
 
 (defn extract-from-group [ref group]
-  (let [{:keys [ids nw se o] :or {o :h}} group
-        i (.indexOf ids ref)]
-    (if (> i -1)
-      (-> (merge group (square/shift {:id ref :nw nw :se se} o i))
-          (dissoc :ids :o))
-      nil)))
+  (let [{:keys [ids nw se poly o] :or {o :h}} group]
+    (if poly
+      (-> (merge group {:id ref :poly poly})
+          (dissoc :ids))
+      (let [i (.indexOf ids ref)]
+        (when (> i -1)
+          (-> (merge group (square/shift {:id ref :nw nw :se se} o i))
+              (dissoc :ids :o)))))))
 
 (defn find-large [ref]
   (let [large (apply str (take 2 ref))]
@@ -19,14 +21,9 @@
          (map #(square/from-square-def ref %)))))
 
 (defn find-irregular [ref]
-  (->> data/irregular-squares
+  (->> (concat data/irregular-squares data/polygonal-squares)
        (filter #(utils/seq-contains? (:ids %) ref))
        (map #(extract-from-group ref %))))
-
-(defn find-polygonal [ref]
-  (->> data/polygonal-squares
-       (filter #(= (:id %) ref))
-       (map (fn [x] {:id ref :poly (:poly x)}))))
 
 (defn two-by-five-search-key [ref]
   (when-let [subs (seq (drop 2 ref))]
@@ -52,10 +49,19 @@
          (map #(square/from-square-def ref %)))))
 
 (defn find-by-id [ref]
-  (->> (concat (find-large ref) (find-irregular ref) (find-polygonal ref) (find-two-by-five ref) (find-partial ref))
+  (->> (concat (find-large ref) (find-irregular ref) (find-two-by-five ref) (find-partial ref))
        (take 1)
        (first)))
 
 (defn find-all-by-ids [refs]
   (->> (map #(find-by-id %) refs)
        (remove nil?)))
+
+(defn extract-all [group filter-fn]
+  (let [ids (filter filter-fn (:ids group))]
+    (map #(extract-from-group % group) ids)))
+
+(defn all-large-squares []
+  (let [filter-fn #(= 2 (count %))]
+    (->> (concat data/large-regular-squares data/large-partial-squares data/irregular-squares data/polygonal-squares)
+         (mapcat #(extract-all % filter-fn)))))
