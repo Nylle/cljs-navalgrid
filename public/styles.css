@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'Bodoni';
-    src: url('fonts/Bodoni-Bold.woff2') format('woff2'),
-    url('fonts/Bodoni-Bold.woff') format('woff');
+    src: url('fonts/BodoniMT-Bold.woff2') format('woff2'),
+    url('fonts/BodoniMT-Bold.woff') format('woff');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
