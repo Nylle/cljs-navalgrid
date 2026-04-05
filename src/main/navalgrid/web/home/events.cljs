@@ -1,7 +1,7 @@
 (ns navalgrid.web.home.events
   (:require [navalgrid.web.router :as router]
             [navalgrid.web.home.model :as model]
-            [navalgrid.web.maps :as m]))
+            [navalgrid.map.core :as m]))
 
 (defn init-db [db _]
   (let [scale (m/scale-denominator)

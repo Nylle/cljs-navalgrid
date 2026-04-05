@@ -1,6 +1,6 @@
-(ns navalgrid.web.maps-test
+(ns navalgrid.map.core-test
   (:require [cljs.test :refer [deftest is testing]])
-  (:require [navalgrid.web.maps :as sut]))
+  (:require [navalgrid.map.core :as sut]))
 
 (deftest coord->lngLat-test
   (is (= [33 99] (sut/coord->lngLat [99 33]))))

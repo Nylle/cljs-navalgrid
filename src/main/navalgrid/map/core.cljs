@@ -1,7 +1,7 @@
-(ns navalgrid.web.maps
+(ns navalgrid.map.core
   (:require [navalgrid.domain.square :as s]
             [navalgrid.persistence.repository :as repo]
-            [navalgrid.web.maplibre :as m]
+            [navalgrid.map.maplibre :as m]
             [navalgrid.math :as math]))
 
 (def map-properties {:style  "/marinequadratkarte.json"

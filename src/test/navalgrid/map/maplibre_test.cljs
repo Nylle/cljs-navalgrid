@@ -1,7 +1,6 @@
-(ns navalgrid.web.maplibre-test
+(ns navalgrid.map.maplibre-test
   (:require [clojure.test :refer [deftest is testing]])
-  (:require [navalgrid.web.maplibre :as sut]))
-
+  (:require [navalgrid.map.maplibre :as sut]))
 
 (deftest meters-per-pixel-test
   (is (= 19567.879241210936 (sut/meters-per-pixel 0 3))))

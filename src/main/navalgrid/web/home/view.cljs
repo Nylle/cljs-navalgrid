@@ -1,7 +1,7 @@
 (ns navalgrid.web.home.view
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
-            [navalgrid.web.maps :as m]
+            [navalgrid.map.core :as m]
             [navalgrid.web.home.events :as e]
             [navalgrid.web.home.model :as model]))
 

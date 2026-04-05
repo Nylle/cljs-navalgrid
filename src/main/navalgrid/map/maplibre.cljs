@@ -1,4 +1,4 @@
-(ns navalgrid.web.maplibre
+(ns navalgrid.map.maplibre
   (:require ["maplibre-gl" :as maplibregl]
             [navalgrid.math :as math]))
 
