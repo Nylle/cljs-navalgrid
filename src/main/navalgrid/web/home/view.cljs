@@ -26,21 +26,29 @@
 
 (defn regular [square]
   [:dl
-   [:dt "NW"] [:dd (coord (:nw square))]
-   [:dt "NE"] [:dd (coord [(first (:nw square)) (second (:se square))])]
-   [:dt "SE"] [:dd (coord (:se square))]
-   [:dt "SW"] [:dd (coord [(first (:se square)) (second (:nw square))])]])
+   [:dt.gap "Centre"] [:dd.gap [coord (:center square)]]
+   [:dt "NW"] [:dd [coord (:nw square)]]
+   [:dt "NE"] [:dd [coord [(first (:nw square)) (second (:se square))]]]
+   [:dt "SE"] [:dd [coord (:se square)]]
+   [:dt "SW"] [:dd [coord [(first (:se square)) (second (:nw square))]]]])
 
 (defn poly [square]
-  (let [letters (cons "NW" (map char (range 98 123)))]
-    (into [:dl] (mapcat (fn [a b] [[:dt a] [:dd (coord b)]]) letters (:poly square)))))
+  (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
+    (into [:dl [:dt.gap "Centre"] [:dd.gap [coord (:center square)]]]
+          (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square)))))
+
+(defn square-details [res]
+  [:<>
+   [:div.region (:name @(rf/subscribe [:region]))]
+   (if (:poly res)
+     [poly res]
+     [regular res])])
 
 (defn output []
   (let [res @(rf/subscribe [:square])]
-    (cond
-      (= nil res) [:div ""]
-      (:poly res) [poly res]
-      :default [regular res])))
+    (if res
+      [square-details res]
+      [:div ""])))
 
 (defn map-view [parent]
   [:div {:id  "map"
@@ -61,7 +69,9 @@
    " Data from " [:a {:href "https://www.openstreetmap.org/copyright" :target "_blank" :rel "noopener noreferrer"} "OPENSTREETMAP"]])
 
 (defn region []
-  @(rf/subscribe [:region]))
+  [:span
+   [:img {:src "/images/icon.png" :width "20" :style {:vertical-align "bottom"}}]
+   (str " " (:label @(rf/subscribe [:region])))])
 
 (defn scale []
   (str "Massstab 1 : " (model/format-scale @(rf/subscribe [:scale]))))
@@ -76,10 +86,15 @@
    [:div {:id "canvas-bottom"}
     [attribution]]])
 
+(defn nav []
+  [:div#nav
+   [:img {:src "/images/logo.png"}]
+   [:span "Naval" [:br] "Grid"]])
+
 (defn body []
   [:<>
    [:aside
-    [:h1 "navalgrid"]
+    [nav]
     [query-input]
     [output]]
    [:main

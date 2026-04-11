@@ -71,5 +71,5 @@
   (let [large (apply str (take 2 ref))]
     (->> regions/all
          (filter #(utils/seq-contains? (:ids %) large))
-         (first)
-         (:name))))
+         (map #(dissoc % :ids))
+         (first))))
