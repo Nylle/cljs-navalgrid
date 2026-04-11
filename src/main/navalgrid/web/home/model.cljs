@@ -15,7 +15,9 @@
                   :center (square/center-coord square))))
 
 (defn region [ref]
-  (when ref (repo/find-region ref)))
+  (if ref
+    (repo/find-region ref)
+    {:label "Weltkarte"}))
 
 (defn format-scale [n]
   (->> (long n)
