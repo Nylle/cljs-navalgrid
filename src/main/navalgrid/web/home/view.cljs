@@ -1,6 +1,7 @@
 (ns navalgrid.web.home.view
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
+            [navalgrid.web.clipboard :as c]
             [navalgrid.map.core :as m]
             [navalgrid.web.home.events :as e]
             [navalgrid.web.home.model :as model]))
@@ -17,7 +18,10 @@
 (rf/reg-sub :region (fn [db _] (:region db)))
 
 (defn coord [x]
-  (str (first x) ", " (second x)))
+  (let [value (str (first x) ", " (second x))]
+    [:span.coord {:title "Copy to Clipboard"
+                  :on-click #(c/copy! value)}
+     value]))
 
 (defn query-input []
   [:input {:type      "text"
