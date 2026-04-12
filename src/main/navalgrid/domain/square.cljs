@@ -92,10 +92,11 @@
         :default (regular-square ref def)))))
 
 (defn sub-square-refs [ref two-by-five?]
-  (let [n (count ref)]
+  (let [n (count ref)
+        i (last ref)]
     (when (and (>= n 2) (< n 6))
       (if two-by-five?
-        (map #(str (subs ref 0 (dec (count ref))) %) ["01" 11 12 13 14 15 16 17 18 19])
+        (map #(str (subs ref 0 (dec (count ref))) %) (cons (str "0" i) (map #(+ (* 10 i) %) (range 1 10))))
         (map #(str ref %) [1 2 3 4 5 6 7 8 9])))))
 
 (defn bounds

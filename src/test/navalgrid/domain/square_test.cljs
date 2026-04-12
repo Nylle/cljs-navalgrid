@@ -128,6 +128,7 @@
 (deftest sub-square-refs-test
   (testing "valid refs"
     (is (= (sut/sub-square-refs "AK1" :v) ["AK01" "AK11" "AK12" "AK13" "AK14" "AK15" "AK16" "AK17" "AK18" "AK19"]))
+    (is (= (sut/sub-square-refs "ÄA2" :v) ["ÄA02" "ÄA21" "ÄA22" "ÄA23" "ÄA24" "ÄA25" "ÄA26" "ÄA27" "ÄA28" "ÄA29"]))
     (is (= (sut/sub-square-refs "ÄG" nil) ["ÄG1" "ÄG2" "ÄG3" "ÄG4" "ÄG5" "ÄG6" "ÄG7" "ÄG8" "ÄG9"])))
   (testing "invalid refs"
     (is (= (sut/sub-square-refs "A" false) nil))
