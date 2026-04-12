@@ -19,14 +19,25 @@
 
 (defn coord [x]
   (let [value (str (first x) ", " (second x))]
-    [:span.coord {:title "Copy to Clipboard"
-                  :on-click #(c/copy! value)}
-     value]))
+    [:span.coord {:title "Copy to Clipboard" :on-click #(c/copy! value)} value]))
 
 (defn query-input []
-  [:input {:type      "text"
-           :value     @(rf/subscribe [:query])
-           :on-change #(rf/dispatch [:query/changed (-> % .-target .-value)])}])
+  (let [el (r/atom nil)]
+    (fn []
+      [:span.query
+       [:button.left {:title    "Insert Ä"
+                      :on-click (fn [] (rf/dispatch [:query/changed "Ä"]) (when-let [n @el] (.focus n)))} "Ä"]
+       [:input {:type        "text"
+                :placeholder "Square Reference…"
+                :ref         (fn [n] (reset! el n))
+                :value       @(rf/subscribe [:query])
+                :on-change   #(rf/dispatch [:query/changed (-> % .-target .-value)])}]
+       [:button.right {:type     "button"
+                       :title    "Coming soon…"
+                       :disabled true
+                       :style    {:opacity    0.5
+                                  :background "#eee"
+                                  :color      "#888"}} "KML"]])))
 
 (defn regular [square]
   [:dl
