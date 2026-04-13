@@ -107,7 +107,7 @@
                        :layout {:line-cap "square"}
                        :paint  {:line-color "#038D3C"
                                 :line-width 3}})
-        (m/add-marker! (:id square) (coord->lngLat (:center square)) "marker-outer")
+        (m/add-marker! "marker-outer" (m/create-marker (:id square) (coord->lngLat (:center square)) "marker-outer"))
         (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
         (m/add-layer! {:id     inner
                        :type   "line"

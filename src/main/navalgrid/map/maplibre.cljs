@@ -10,7 +10,6 @@
     (let [^js m (maplibregl/Map. (clj->js (assoc props :container el)))]
       (.addControl m (maplibregl/NavigationControl.))
       (.on m "load" loaded-fn)
-      (.on m "load" (fn [] (.setCenter m (clj->js (.getCenter m)))))
       (.on m "moveend" moved-fn)
       (reset! map-inst m))))
 
@@ -63,15 +62,17 @@
     (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 50}))
     (reset! map-inst m)))
 
-(defn add-marker! [text lnglat class]
+(defn create-marker [text lnglat class]
+  (let [div (js/document.createElement "div")
+        _ (set! (.-className div) class)
+        _ (set! (.-textContent div) text)]
+    (-> (maplibregl/Marker. #js {:element div})
+        (.setLngLat (clj->js lnglat)))))
+
+(defn add-marker! [id ^js marker]
   (when-let [^js m @map-inst]
-    (let [div (js/document.createElement "div")
-          _ (set! (.-className div) class)
-          _ (set! (.-textContent div) text)]
-      (let [marker (-> (maplibregl/Marker. #js {:element div})
-                       (.setLngLat (clj->js lnglat))
-                       (.addTo m))]
-        (swap! markers assoc text marker)))
+    (.addTo marker m)
+    (swap! markers assoc id marker)
     (reset! map-inst m)))
 
 (defn clear-markers! []
