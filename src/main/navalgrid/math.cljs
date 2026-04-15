@@ -1,6 +1,5 @@
 (ns navalgrid.math
-  (:require #?(:clj  [clj.math :as math]
-               :cljs [cljs.math :as math])))
+  (:require [cljs.math :as math]))
 
 (def PI math/PI)
 (def cos math/cos)
