@@ -50,9 +50,10 @@
          (map #(square/from-square-def ref %)))))
 
 (defn find-by-id [ref]
-  (->> (concat (find-large ref) (find-irregular ref) (find-two-by-five ref) (find-partial ref))
-       (take 1)
-       (first)))
+  (when (and (string? ref) (boolean (re-matches #"(?i)^[ÄA-Z]{0,2}\d{0,4}$" ref)))
+    (->> (concat (find-large ref) (find-irregular ref) (find-two-by-five ref) (find-partial ref))
+         (take 1)
+         (first))))
 
 (defn find-all-by-ids [refs]
   (->> (map #(find-by-id %) refs)

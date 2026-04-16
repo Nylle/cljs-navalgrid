@@ -34,7 +34,11 @@
 
 (deftest find-by-id-test
   (testing "not found"
-    (is (= nil (sut/find-by-id {:l "xxx"}))))
+    (is (= nil (sut/find-by-id nil)))
+    (is (= nil (sut/find-by-id "A")))
+    (is (= nil (sut/find-by-id "AAA")))
+    (is (= nil (sut/find-by-id "AA12345")))
+    (is (= nil (sut/find-by-id {:l "xx"}))))
   (testing "large regular square"
     (is (= (sut/find-by-id "ÄG") {:id "ÄG" :nw [85.2 5] :se [77.1 45.5]}))
     (is (= (sut/find-by-id "ÄG1") {:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}))
@@ -81,7 +85,7 @@
     (is (= (sut/find-by-id "AD99") nil) "does not exist")))
 
 (deftest find-all-by-ids-test
-  (is (= (sut/find-all-by-ids ["XXX" "ÄG1" "OT7999" "YC9999" "MA48" "AM6" "AK1" "AK0199" "AL5899" "AD98" "YYY"])
+  (is (= (sut/find-all-by-ids ["XX" "ÄG1" "OT7999" "YC9999" "MA48" "AM6" "AK1" "AK0199" "AL5899" "AD98" "YY"])
          [{:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}
           {:id "OT7999" :nw [25.8 170.467] :se [25.7 170.6]}
           {:id "YC9999" :nw [82.5 -173.5] :se [82.4 -172.75]}
