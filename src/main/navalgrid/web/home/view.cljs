@@ -41,7 +41,8 @@
 
 (defn regular [square]
   [:dl
-   [:dt.gap "Centre"] [:dd.gap [coord (:center square)]]
+   [:dt "Centre"] [:dd [coord (:center square)]]
+   [:dt.gap "Label"] [:dd.gap [coord (:label square)]]
    [:dt "NW"] [:dd [coord (:nw square)]]
    [:dt "NE"] [:dd [coord [(first (:nw square)) (second (:se square))]]]
    [:dt "SE"] [:dd [coord (:se square)]]
@@ -49,7 +50,9 @@
 
 (defn poly [square]
   (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
-    (into [:dl [:dt.gap "Centre"] [:dd.gap [coord (:center square)]]]
+    (into [:dl
+           [:dt "Centre"] [:dd [coord (:center square)]]
+           [:dt.gap "Label"] [:dd.gap [coord (:label square)]]]
           (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square)))))
 
 (defn square-details [res]

@@ -2,8 +2,8 @@
   (:require [cljs.test :refer [deftest is testing]])
   (:require [navalgrid.map.core :as sut]))
 
-(deftest coord->lngLat-test
-  (is (= [33 99] (sut/coord->lngLat [99 33]))))
+(deftest coord<->lngLat-test
+  (is (= [33 99] (sut/coord<->lngLat [99 33]))))
 
 (deftest bounds-test
   (is (= [[48.3 -11.5] [51 -7]] (sut/bounds {:nw [51 -11.5] :se [48.3 -7]}))

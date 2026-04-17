@@ -17,10 +17,7 @@
   "Returns a fn that destroys the previously created map singleton."
   [] (fn [_] (m/destroy!)))
 
-(defn coord->lngLat
-  "Returns a vector of the longitude and latitude for the provided [lat lon]."
-  [[lat lon]]
-  [lon lat])
+(defn coord<->lngLat [[x y]] [y x])
 
 (defn scale-denominator []
   (let [lat (second (m/get-center))
@@ -54,7 +51,7 @@
   [{:keys [nw se poly]}]
   (let [coords (or poly (s/bounds {:nw nw :se se}))]
     (->> (conj coords (first coords))
-         (map coord->lngLat)
+         (map coord<->lngLat)
          (fix-for-antimeridian))))
 
 (defn polygon->geojson [lnglats]
@@ -107,7 +104,7 @@
                        :layout {:line-cap "square"}
                        :paint  {:line-color "#038D3C"
                                 :line-width 3}})
-        (m/add-marker! "marker-outer" (m/create-marker (:id square) (coord->lngLat (:center square)) "marker-outer"))
+        (m/add-marker! "marker-outer" (m/create-marker (:id square) (coord<->lngLat (:label square)) "marker-outer"))
         (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
         (m/add-layer! {:id     inner
                        :type   "line"
@@ -115,5 +112,5 @@
                        :layout {:line-cap "square"}
                        :paint  {:line-color "#038D3C"
                                 :line-width 2}})
-        (m/fit-bounds! (map coord->lngLat (bounds square))))
+        (m/fit-bounds! (map coord<->lngLat (bounds square))))
       (draw-all-large-squares!))))
