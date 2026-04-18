@@ -237,6 +237,60 @@
       (is (nil? @get-called))
       (is (nil? @removed)))))
 
+(deftest hide-layer!-test
+  (let [mock-map (js-obj)
+        get-layer-calls (atom [])
+        set-layout-calls (atom [])]
+      (aset mock-map "getLayer" (fn [id] (swap! get-layer-calls conj id) (when (= id "exists") #js {})))
+      (aset mock-map "setLayoutProperty" (fn [id prop val] (swap! set-layout-calls conj [id prop val])))
+
+      (testing "sets visibility of existing layer to none"
+        (reset! get-layer-calls [])
+        (reset! set-layout-calls [])
+        (reset! sut/map-inst mock-map)
+        (sut/hide-layer! "exists")
+
+        (is (= ["exists"] @get-layer-calls))
+        (is (= [["exists" "visibility" "none"]] @set-layout-calls))
+        (is (identical? mock-map @sut/map-inst)))
+
+      (testing "does nothing when layer does not exist"
+        (reset! get-layer-calls [])
+        (reset! set-layout-calls [])
+        (reset! sut/map-inst mock-map)
+        (sut/hide-layer! "missing")
+
+        (is (= ["missing"] @get-layer-calls))
+        (is (empty? @set-layout-calls))
+        (is (identical? mock-map @sut/map-inst)))))
+
+(deftest show-layer!-test
+  (let [mock-map (js-obj)
+        get-layer-calls (atom [])
+        set-layout-calls (atom [])]
+      (aset mock-map "getLayer" (fn [id] (swap! get-layer-calls conj id) (when (= id "exists") #js {})))
+      (aset mock-map "setLayoutProperty" (fn [id prop val] (swap! set-layout-calls conj [id prop val])))
+
+      (testing "sets visibility if existing layer to visible"
+        (reset! get-layer-calls [])
+        (reset! set-layout-calls [])
+        (reset! sut/map-inst mock-map)
+        (sut/show-layer! "exists")
+
+        (is (= ["exists"] @get-layer-calls))
+        (is (= [["exists" "visibility" "visible"]] @set-layout-calls))
+        (is (identical? mock-map @sut/map-inst)))
+
+      (testing "does nothing when layer does not exist"
+        (reset! get-layer-calls [])
+        (reset! set-layout-calls [])
+        (reset! sut/map-inst mock-map)
+        (sut/show-layer! "missing")
+
+        (is (= ["missing"] @get-layer-calls))
+        (is (empty? @set-layout-calls))
+        (is (identical? mock-map @sut/map-inst)))))
+
 (deftest fit-bounds!-test
   (let [mock-map (js-obj)
         called (atom nil)]
@@ -344,4 +398,3 @@
 
 (deftest get-scale-denominator-test
   (is (= 73957338.8644193 (sut/get-scale-denominator 0 3))))
-

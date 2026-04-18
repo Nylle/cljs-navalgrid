@@ -4,9 +4,9 @@
             [navalgrid.map.maplibre :as m]
             [navalgrid.math :as math]))
 
-(def map-properties {:style  "/marinequadratkarte.json"
-                     :center [0 40]
-                     :zoom   1
+(def map-properties {:style              "/marinequadratkarte.json"
+                     :center             [0 40]
+                     :zoom               1
                      :attributionControl false})
 
 (defn create-fn
@@ -70,22 +70,40 @@
                                     :coordinates [lnglats]}
                        :properties {}})}})
 
+(defn labels->geojson [labels]
+  {:type "geojson"
+   :data {:type     "FeatureCollection"
+          :features (map (fn [{:keys [lng lat label]}]
+                           {:type       "Feature"
+                            :geometry   {:type "Point" :coordinates [lng lat]}
+                            :properties {:label label}})
+                         labels)}})
+
 (defn draw-all-large-squares! []
   (let [squares (repo/all-large-squares)
-        source (->> (mapv square->polygon squares) (polygons->geojson))]
-    (m/add-source! "all" source)
-    (m/add-layer! {:id     "all"
-                         :type   "line"
-                         :source "all"
-                         :layout {:line-cap "square"}
-                         :paint  {:line-color "#038D3C"
-                                  :line-width 1}})
-    (m/set-center! [0 40])
-    (m/set-zoom! 1)))
-
-(defn remove-all-squares! []
-  (m/remove-layer! "all")
-  (m/remove-source! "all"))
+        poly-src (->> (mapv square->polygon squares) (polygons->geojson))
+        label-src (->> (map (fn [s] (let [center (s/center-coord s)] {:lng (second center) :lat (first center) :label (:id s)})) squares) (labels->geojson))
+        poly-id "all-squares"
+        label-id "all-labels"]
+    (m/add-source! poly-id poly-src)
+    (m/add-source! label-id label-src)
+    (m/add-layer! {:id     poly-id
+                   :type   "line"
+                   :source poly-id
+                   :layout {:line-cap "square"}
+                   :paint  {:line-color "#038D3C"
+                            :line-width 1}})
+    (m/add-layer! {:id     label-id
+                   :type   "symbol"
+                   :source label-id
+                   :layout {:text-field  ["get" "label"]
+                            :text-font   ["Noto Sans Bold"]
+                            :text-size   10
+                            :text-offset [0 0]
+                            :text-anchor "center"}
+                   :paint  {:text-color      "#038D3C"
+                            :text-halo-color "#fff"
+                            :text-halo-width 1}})))
 
 (defn set-square! [square]
   (let [outer "outer" inner "inner"]
@@ -94,9 +112,10 @@
     (m/remove-source! outer)
     (m/remove-layer! inner)
     (m/remove-source! inner)
-    (remove-all-squares!)
     (if square
       (let [subs (:sub-squares square)]
+        (m/hide-layer! "all-squares")
+        (m/hide-layer! "all-labels")
         (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
         (m/add-layer! {:id     outer
                        :type   "line"
@@ -113,4 +132,8 @@
                        :paint  {:line-color "#038D3C"
                                 :line-width 2}})
         (m/fit-bounds! (map coord<->lngLat (bounds square))))
-      (draw-all-large-squares!))))
+      (do
+        (m/show-layer! "all-labels")
+        (m/show-layer! "all-squares")
+        (m/set-center! [0 40])
+        (m/set-zoom! 1)))))

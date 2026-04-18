@@ -57,6 +57,16 @@
     (when (.getLayer m id) (.removeLayer m id))
     (reset! map-inst m)))
 
+(defn hide-layer! [id]
+  (when-let [^js m @map-inst]
+    (when (.getLayer m id) (.setLayoutProperty m id "visibility" "none"))
+    (reset! map-inst m)))
+
+(defn show-layer! [id]
+  (when-let [^js m @map-inst]
+    (when (.getLayer m id) (.setLayoutProperty m id "visibility" "visible"))
+    (reset! map-inst m)))
+
 (defn fit-bounds! [[sw-lnglat ne-lnglat]]
   (when-let [^js m @map-inst]
     (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 50}))

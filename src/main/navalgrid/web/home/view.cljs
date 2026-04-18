@@ -33,11 +33,11 @@
                 :value       @(rf/subscribe [:query])
                 :on-change   #(rf/dispatch [:query/changed (-> % .-target .-value)])}]
        [:button.right {:type     "button"
-                       :title    "Reverse Search Coming Soon…"
+                       :title    "Settings"
                        :disabled true
                        :style    {:opacity    0.5
                                   :background "#eee"
-                                  :color      "#888"}} [:i "search"]]])))
+                                  :color      "#888"}} [:i "settings"]]])))
 
 (defn regular [square]
   [:dl
@@ -107,7 +107,8 @@
 (defn nav []
   [:div#nav
    [:img {:src "/images/logo.png"}]
-   [:span "Naval Grid" [:br] [:i "settings"] [:i "info"] [:i "help"] [:i "favorite"]]])
+   [:span "Naval Grid"                                      ;[:br] [:i "info"] [:i "help"] [:i "favorite"]
+    ]])
 
 (defn body []
   [:<>
