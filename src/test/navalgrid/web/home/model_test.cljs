@@ -27,7 +27,8 @@
                         {:id "BF8" :nw [45.6 -7.9] :se [42.9 -4.3]}
                         {:id "BF9" :nw [45.6 -4.3] :se [42.9 -0.7]}]
           :label       [46.95 -7.45]
-          :center      [46.95 -4]}) "polygonal")
+          :center      [46.95 -4]
+          :dimensions  {:height 486.32, :max-width 659.72, :min-width 566.76, :mean-width 613.24}}) "polygonal")
   (is (= (sut/find-square "AK1")
          {:id          "AK1"
           :nw          [60.9 -37.3]
@@ -44,7 +45,8 @@
                         {:id "AK18" :nw [58.2 -35.5] :se [57.3 -33.7]}
                         {:id "AK19" :nw [57.3 -37.3] :se [56.4 -35.5]}]
           :label       [58.65 -35.5]
-          :center      [58.65 -35.5]}) "two-by-five"))
+          :center      [58.65 -35.5]
+          :dimensions  {:height 270.18, :max-width 119.61, :min-width 105.12, :mean-width 112.36}}) "two-by-five"))
 
 (deftest format-scale-test
   (is (= "25 000 000" (sut/format-scale 25000000))))

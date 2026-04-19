@@ -119,3 +119,14 @@
         h (second (second (geo/simple-rhumb-division nw ne 2)))
         v (first (second (geo/simple-rhumb-division nw sw 2)))]
     [(math/round 3 v) (math/round 3 h)]))
+
+(defn dimensions
+  "Returns the dimensions (height, width) of the bounds of the provided square."
+  [square]
+  (let [[nw ne se sw] (bounds square)
+        u-width (geo/rhumb-distance nw ne)
+        l-width (geo/rhumb-distance sw se)]
+    {:height     (math/round 2 (geo/rhumb-distance nw sw))
+     :max-width  (math/round 2 (max u-width l-width))
+     :min-width  (math/round 2 (min u-width l-width))
+     :mean-width (math/round 2 (/ (+ u-width l-width) 2))}))

@@ -43,6 +43,10 @@
   [:dl
    [:dt "Centre"] [:dd [coord (:center square)]]
    [:dt.gap "Label"] [:dd.gap [coord (:label square)]]
+   [:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
+   [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
+   [:dt "Max Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
+   [:dt.gap "Min Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]
    [:dt "NW"] [:dd [coord (:nw square)]]
    [:dt "NE"] [:dd [coord [(first (:nw square)) (second (:se square))]]]
    [:dt "SE"] [:dd [coord (:se square)]]
@@ -52,7 +56,11 @@
   (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
     (into [:dl
            [:dt "Centre"] [:dd [coord (:center square)]]
-           [:dt.gap "Label"] [:dd.gap [coord (:label square)]]]
+           [:dt.gap "Label"] [:dd.gap [coord (:label square)]]
+           [:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
+           [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
+           [:dt "Max Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
+           [:dt.gap "Min Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]]
           (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square)))))
 
 (defn square-details [res]

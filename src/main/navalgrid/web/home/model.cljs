@@ -17,7 +17,8 @@
                   :label (-> [(m/square->polygon square)]
                              (p/pole-of-inaccessability)
                              (m/coord<->lngLat))
-                  :center (square/center-coord square))))
+                  :center (square/center-coord square)
+                  :dimensions (square/dimensions square))))
 
 (defn region [ref]
   (if ref

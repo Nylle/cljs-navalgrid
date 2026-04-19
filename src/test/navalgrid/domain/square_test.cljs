@@ -146,3 +146,11 @@
   (is (= [1 1] (sut/center-coord {:nw [2 0] :se [0 2]})))
   (is (= [83.75 177.125] (sut/center-coord {:nw [85.1 167] :se [82.4 -172.75]})) "across anti-meridian")
   (is (= [-1.65 0.35] (sut/center-coord {:nw [2.4 -3.7] :se [-5.7 4.4]})) "across equator"))
+
+(deftest dimensions-test
+  (is (= {:height 162.11, :max-width 179.73, :min-width 170.03, :mean-width 174.88}
+         (sut/dimensions {:nw [51 -11.5] :se [48.3 -7]}))
+      "for the rectangle BF1")
+  (is (= {:height 486.32, :max-width 659.72, :min-width 566.76, :mean-width 613.24}
+         (sut/dimensions {:poly [[51 -11.5] [51 3.5] [50.1 3.5] [50.1 2] [49.2 2] [49.2 0.5] [48.3 0.5] [48.3 -1] [45.6 -1] [45.6 -0.7] [42.9 -0.7] [42.9 -11.5]]}))
+      "for the polygon BF"))
