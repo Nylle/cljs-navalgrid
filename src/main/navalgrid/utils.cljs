@@ -6,6 +6,12 @@
 (defn str->int [x]
   (js/parseInt x))
 
+(defn lpad [s n pad]
+  (.padStart (str s) n (str pad)))
+
+(defn num->str [s digits]
+  (.toFixed s digits))
+
 (defn error [x]
   (js/Error. x))
 

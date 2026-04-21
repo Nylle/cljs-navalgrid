@@ -1,0 +1,106 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    -webkit-tap-highlight-color: transparent;
+    animation: ddg-modal-fade .16s ease-out;
+}
+
+.modal-content {
+    background: #fff;
+    color: #111;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(12,20,30,0.35);
+    width: 100%;
+    max-width: 640px;
+    max-height: 80vh;
+    overflow: auto;
+    transform-origin: center;
+    animation: ddg-modal-pop .18s cubic-bezier(.2,.9,.3,1);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f1724;
+}
+
+.modal-header > button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #374151;
+    padding: 6px;
+    border-radius: 6px;
+}
+.modal-header > button:hover { background: rgba(0,0,0,0.04); }
+.modal-header > button:focus { box-shadow: 0 0 0 3px rgba(99,102,241,0.14); outline: none; }
+
+.modal-body {
+    font-size: 0.98rem;
+    color: #334155;
+    margin-bottom: 16px;
+    word-wrap: break-word;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-footer button,
+.modal-body button {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+}
+
+.modal-footer .btn-primary {
+    background: linear-gradient(180deg,#4f46e5,#4338ca);
+    color: white;
+    border-color: rgba(0,0,0,0.06);
+}
+.modal-footer .btn-primary:hover { filter: brightness(.96); }
+
+.modal-footer .btn-secondary {
+    background: #fff;
+    color: #111827;
+    border: 1px solid #e6e9ee;
+}
+.modal-footer .btn-secondary:hover { background: #fbfbfd; }
+
+@media (max-width: 480px) {
+    .modal-content { margin: 12px; max-width: calc(100% - 24px); max-height: 86vh; padding: 16px; border-radius: 8px; }
+    .modal-header h3 { font-size: 1rem; }
+}
+
+@keyframes ddg-modal-pop {
+    from { transform: translateY(6px) scale(.995); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes ddg-modal-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}

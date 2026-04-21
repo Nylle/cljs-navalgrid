@@ -1,6 +1,6 @@
 (ns navalgrid.domain.geo
   (:require [navalgrid.math :as math]
-            [navalgrid.utils :as utils]))
+            [navalgrid.utils :refer [lpad num->str finite? error]]))
 
 (def earth-radius-nmi 3440)
 
@@ -35,7 +35,7 @@
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
   [dLat dLat' lat1]
   (let [res (/ dLat dLat')]
-    (if (utils/finite? res)
+    (if (finite? res)
       res
       (math/cos lat1))))
 
@@ -59,16 +59,16 @@
           (* x earth-radius-nmi))))
 
 (defn haversine-distance
-  "Returns the length in Nautical Miles for a great-circle line between the coordinates coord1 and coord2 using the
+  "Returns the length in Nautical Miles for a great-circle line between the coordinates coords1 and coords2 using the
   'haversine' formula.
   A great-circle line is the shortest connection between two points over the earth's surface with a constantly changing
   bearing.
   Source: http://www.movable-type.co.uk/scripts/latlong.html by Chris Veness"
-  [coord1 coord2]
-  (let [lat1 (math/to-radians (first coord1))
-        lat2 (math/to-radians (first coord2))
-        lon1 (math/to-radians (second coord1))
-        lon2 (math/to-radians (second coord2))
+  [coords1 coords2]
+  (let [lat1 (math/to-radians (first coords1))
+        lat2 (math/to-radians (first coords2))
+        lon1 (math/to-radians (second coords1))
+        lon2 (math/to-radians (second coords2))
         dLat-2 (/ (- lat2 lat1) 2)
         dLon-2 (/ (- lon2 lon1) 2)]
     (as-> (math/sin dLon-2) x
@@ -108,12 +108,35 @@
   (concat (range lat1 lat2 (/ (- lat2 lat1) div)) [lat2]))
 
 (defn simple-rhumb-division
-  "Divides a rhumb line between coordinates coord1 and coord2 by div into equal parts and returns the respective coordinates.
+  "Divides a rhumb line between coordinates coords1 and coords2 by div into equal parts and returns the respective coordinates.
   This only works for strictly horizontal or vertical rhumb lines with bearings of 0°, 90°, 180°, 270°."
-  [coord1 coord2 div]
-  (let [[lat1 lon1] coord1
-        [lat2 lon2] coord2]
+  [coords1 coords2 div]
+  (let [[lat1 lon1] coords1
+        [lat2 lon2] coords2]
     (cond
       (= lat1 lat2) (map (fn [x] [lat1 x]) (lon-range lon1 lon2 div))
       (= lon1 lon2) (map (fn [x] [x lon1]) (lat-range lat1 lat2 div))
-      :else (throw (utils/error (str "Invalid bearing from " coord1 " to " coord2 ". Must be one of 0°, 90°, 180°, 270°."))))))
+      :else (throw (error (str "Invalid bearing from " coords1 " to " coords2 ". Must be one of 0°, 90°, 180°, 270°."))))))
+
+(defn format-coord [deg mode is-lat?]
+  (let [hem (cond
+              (and is-lat? (pos? deg)) "N"
+              (and is-lat? (neg? deg)) "S"
+              (and (not is-lat?) (pos? deg)) "E"
+              :else "W")
+        abs-deg (math/fabs deg)
+        d (int abs-deg)
+        rem-mins (* 60 (- abs-deg d))
+        m (int rem-mins)
+        s (math/round (* 60 (- rem-mins m)))
+        n (if is-lat? 2 3)
+        deg-str (lpad d n "0")]
+    (case mode
+      :dd (str (lpad (num->str d 3) (if is-lat? 6 7) "0") "°" hem)
+      :dmm (str deg-str "°" (lpad (num->str rem-mins 2) 5 "0") "'" hem)
+      :dms (str deg-str "°" (lpad m 2 "0") "'" (lpad s 2 "0") "\"" hem)
+      :jerry (str deg-str " " (lpad (math/round rem-mins) 2 "0") hem)
+      (str deg))))
+
+(defn coords->str [[lat lon] format]
+  (str (format-coord lat format true) ", " (format-coord lon format false)))

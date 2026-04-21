@@ -97,7 +97,7 @@ aside span.query button {
     height: 100%;
 }
 aside span.query button.left { border-right: 1px solid #ddd; font-weight: bold}
-aside span.query button.right { border-left: 1px solid #ddd; font-size: 24px; cursor: not-allowed}
+aside span.query button.right { border-left: 1px solid #ddd; font-size: 24px;}
 aside span.query input {
     border: none;
     outline: none;
