@@ -37,7 +37,7 @@
                 :on-change   #(rf/dispatch [:query/changed (-> % .-target .-value)])}]
        [:button.right {:type     "button"
                        :title    "Settings"
-                       :on-click (fn [] (rf/dispatch [:modal/open {:title "Settings" :body [settings/format-selector]}]))} [:i "settings"]]])))
+                       :on-click (fn [] (rf/dispatch [:modal/open {:title "Coordinates Format" :body [settings/format-selector]}]))} [:i "settings"]]])))
 
 (defn details [square]
   (let [res [:dl
@@ -111,7 +111,6 @@
       [attribution]]]]])
 
 (defn init []
-  (rf/dispatch [:init])
   [:<>
    [modal]
    [body]])

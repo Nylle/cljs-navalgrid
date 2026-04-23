@@ -10,7 +10,6 @@
 
 (defn ls-set! [k v]
   (when (ls-available?)
-    (cljs.pprint/pprint [k v])
     (.setItem js/localStorage (name k) (js/JSON.stringify (clj->js v)))))
 
 (defn ls-get [k]

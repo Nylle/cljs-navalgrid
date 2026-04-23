@@ -50,6 +50,10 @@
       (is (= '([0 3]) (sut/simple-rhumb-division [0 3] [0 3] 3)))
       (is (= '([3 0]) (sut/simple-rhumb-division [3 0] [3 0] 3)))))
 
+(deftest format-coord-test
+  (is (= "49°39'00\"N" (sut/format-coord 49.65 :dms true)))
+  (is (= "001°09'00\"W" (sut/format-coord -1.15 :dms false))))
+
 (deftest coords->str-test
   (testing "signed decimal"
     (is (= "1, 1" (sut/coords->str [1 1] :deg)))

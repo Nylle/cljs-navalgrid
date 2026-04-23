@@ -14,7 +14,7 @@
           [:div.modal-overlay {:on-click #(rf/dispatch [:modal/close])}
            [:div.modal-content {:on-click (fn [e] (.stopPropagation e))}
             [:div.modal-header
-             [:h3 title]
-             [:button {:on-click #(rf/dispatch [:modal/close])} "×"]]
+             [:h3 title]]
             [:div.modal-body body]
-            [:div.modal-footer]]])))))
+            [:div.modal-footer
+             [:button {:on-click #(rf/dispatch [:modal/close])} "Done"]]]])))))

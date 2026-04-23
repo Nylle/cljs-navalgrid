@@ -22,11 +22,11 @@
 (defn format-selector []
   (let [current (rf/subscribe [:prefs/format])]
     (fn []
-      [:fieldset.format
+      [:fieldset.settings
        {:aria-label "Coordinate display format"}
        (into [:<>] (for [[k label] formats]
          ^{:key (name k)}
-         [:label.format__option
+         [:label
           [:input {:type      "radio"
                    :name      "format"
                    :value     (name k)

@@ -6,6 +6,7 @@
 (defonce root-container (rdc/create-root (js/document.getElementById "root")))
 
 (defn mount-ui []
+  (rf/dispatch [:init])
   (rdc/render root-container [home/init]))
 
 (defn ^:dev/after-load clear-cache-and-render! []
