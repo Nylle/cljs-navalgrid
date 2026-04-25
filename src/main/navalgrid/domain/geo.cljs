@@ -139,7 +139,7 @@
         n (if is-lat? 2 3)
         deg-str (lpad d' n "0")]
     (case mode
-      :dd (str (lpad (num->str d' 3) (if is-lat? 6 7) "0") "°" hem)
+      :dd (str (lpad (num->str abs-deg 3) (if is-lat? 6 7) "0") "°" hem)
       :dmm (str deg-str "°" (lpad (num->str (+ m' (/ s' 60.0)) 2) 5 "0") "'" hem)
       :dms (str deg-str "°" (lpad m' 2 "0") "'" (lpad s' 2 "0") "\"" hem)
       :jerry (str deg-str " " (lpad (math/round (+ m' (/ s' 60.0))) 2 "0") hem)

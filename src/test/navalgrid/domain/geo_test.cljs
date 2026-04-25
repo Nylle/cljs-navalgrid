@@ -61,10 +61,10 @@
     (is (= "1, -1" (sut/coords->str [1 -1] :deg)))
     (is (= "-1, -1" (sut/coords->str [-1 -1] :deg))))
   (testing "DD"
-    (is (= "01.000°N, 001.000°E" (sut/coords->str [1 1] :dd)))
-    (is (= "01.000°S, 001.000°E" (sut/coords->str [-1 1] :dd)))
-    (is (= "01.000°N, 001.000°W" (sut/coords->str [1 -1] :dd)))
-    (is (= "01.000°S, 001.000°W" (sut/coords->str [-1 -1] :dd))))
+    (is (= "01.100°N, 001.100°E" (sut/coords->str [1.1 1.1] :dd)))
+    (is (= "01.100°S, 001.100°E" (sut/coords->str [-1.1 1.1] :dd)))
+    (is (= "01.100°N, 001.100°W" (sut/coords->str [1.1 -1.1] :dd)))
+    (is (= "01.100°S, 001.100°W" (sut/coords->str [-1.1 -1.1] :dd))))
   (testing "DMM"
     (is (= "01°00.00'N, 001°00.00'E" (sut/coords->str [1 1] :dmm)))
     (is (= "01°00.00'S, 001°00.00'E" (sut/coords->str [-1 1] :dmm)))
