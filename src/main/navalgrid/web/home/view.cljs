@@ -28,25 +28,26 @@
   (let [el (r/atom nil)]
     (fn []
       [:span.query
-       [:button.left {:title    "Insert Ä"
-                      :on-click (insert-a-umlaut el)} "Ä"]
+       [:button.sec.left {:title    "Insert Ä"
+                     :on-click (insert-a-umlaut el)} "Ä"]
        [:input {:type        "text"
                 :placeholder "Square Reference…"
                 :ref         (fn [n] (reset! el n))
                 :value       @(rf/subscribe [:query])
                 :on-change   #(rf/dispatch [:query/changed (-> % .-target .-value)])}]
-       [:button.right {:type     "button"
-                       :title    "Settings"
-                       :on-click (fn [] (rf/dispatch [:modal/open {:title "Coordinates Format" :body [settings/format-selector]}]))} [:i "settings"]]])))
+       [:button.sec.right {:type     "button"
+                     :title    "Settings"
+                     :on-click (fn [] (rf/dispatch [:modal/open {:title "Coordinates Format" :body [settings/format-selector]}]))} [:i "settings"]]])))
 
 (defn details [square]
   (let [res [:dl
              [:dt "Centre"] [:dd [coord (:center square)]]
              [:dt.gap "Label"] [:dd.gap [coord (:label square)]]
+             [:dt.gap "Region"] [:dd.gap (:name @(rf/subscribe [:region]))]
              [:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
              [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
-             [:dt "Max Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
-             [:dt.gap "Min Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]]]
+             [:dt "Max. Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
+             [:dt.gap "Min. Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]]]
     (if (:poly square)
       (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
         (into res (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square))))
@@ -58,9 +59,7 @@
 
 (defn output []
   (if-let [square @(rf/subscribe [:square])]
-    [:<>
-     [:div.region (:name @(rf/subscribe [:region]))]
-     [details square]]
+    [details square]
     [:div ""]))
 
 (defn map-view [parent]
@@ -92,7 +91,7 @@
 (defn nav []
   [:div#nav
    [:img {:src "/images/logo.png"}]
-   [:span "Naval Grid"]])                                   ;[:br] [:i "info"] [:i "help"] [:i "favorite"]
+   [:span "The" [:br] "Naval Grid"]])                       ;[:br] [:i "info"] [:i "help"] [:i "favorite"]
 
 (defn body []
   [:<>

@@ -17,4 +17,4 @@
              [:h3 title]]
             [:div.modal-body body]
             [:div.modal-footer
-             [:button {:on-click #(rf/dispatch [:modal/close])} "Done"]]]])))))
+             [:button.pri {:on-click #(rf/dispatch [:modal/close])} "Done"]]]])))))
