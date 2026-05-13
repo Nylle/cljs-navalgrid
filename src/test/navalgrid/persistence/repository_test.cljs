@@ -44,12 +44,12 @@
     (is (= (sut/find-by-id "ÄG1") {:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}))
     (is (= (sut/find-by-id "ÄG9999") {:id "ÄG9999" :nw [77.2 45] :se [77.1 45.5]})))
   (testing "large partial square OT with columns [[1] [4] [7]]"
-    (is (= (sut/find-by-id "OT") {:id "OT" :nw [33.8 167] :se [25.7 170.6]}))
+    (is (= (sut/find-by-id "OT") {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]}))
     (is (= (sut/find-by-id "OT1") {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}))
     (is (= (sut/find-by-id "OT2") nil))
     (is (= (sut/find-by-id "OT7999") {:id "OT7999" :nw [25.8 170.467] :se [25.7 170.6]})))
   (testing "large partial square YC with row [7 8 9]"
-    (is (= (sut/find-by-id "YC") {:id "YC" :nw [85.1 126.5] :se [82.4 -172.75]}))
+    (is (= (sut/find-by-id "YC") {:id "YC" :nw [85.1 126.5] :se [82.4 -172.75] :sub [[7 8 9]]}))
     (is (= (sut/find-by-id "YC1") nil))
     (is (= (sut/find-by-id "YC7") {:id "YC7" :nw [85.1 126.5] :se [82.4 146.75]}))
     (is (= (sut/find-by-id "YC9999") {:id "YC9999" :nw [82.5 -173.5] :se [82.4 -172.75]})))
@@ -67,7 +67,7 @@
     (is (= (sut/find-by-id "AK01") {:id "AK01" :nw [57.3 -35.5] :se [56.4 -33.7]}))
     (is (= (sut/find-by-id "AK0199") {:id "AK0199" :nw [56.5 -33.9] :se [56.4 -33.7]})))
   (testing "partial squares [[1 2] [4 5] [7 8]]"
-    (is (= (sut/find-by-id "AL5") {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5]}))
+    (is (= (sut/find-by-id "AL5") {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5] :sub [[1 2] [4 5] [7 8]]}))
     (is (= (sut/find-by-id "AL51") {:id "AL51" :nw [56.4 -23.5] :se [55.5 -22]}))
     (is (= (sut/find-by-id "AL53") nil))
     (is (= (sut/find-by-id "AL5899") {:id "AL5899" :nw [53.8 -20.667] :se [53.7 -20.5]}))

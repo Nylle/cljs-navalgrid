@@ -19,7 +19,7 @@
     (->> (concat data/large-regular-squares data/large-partial-squares)
          (filter #(utils/seq-contains? (:ids %) large))
          (map #(extract-from-group large %))
-         (map #(square/from-square-def ref %)))))
+         (map #(square/def->square ref %)))))
 
 (defn find-irregular [ref]
   (->> (concat data/irregular-squares data/polygonal-squares)
@@ -38,7 +38,7 @@
     (->> (concat data/two-by-five-squares)
          (filter #(utils/seq-contains? (:ids %) key))
          (map #(extract-from-group key %))
-         (map #(square/from-square-def ref %)))))
+         (map #(square/def->square ref %)))))
 
 (defn find-partial [ref]
   (let [large (apply str (take 2 ref))
@@ -47,7 +47,7 @@
     (->> data/partial-squares
          (mapcat #(map (fn [r] {:ref r :square %}) (filter (set (:ids %)) refs)))
          (map #(extract-from-group (:ref %) (:square %)))
-         (map #(square/from-square-def ref %)))))
+         (map #(square/def->square ref %)))))
 
 (defn find-by-id [ref]
   (when (and (string? ref) (boolean (re-matches #"(?i)^[ÄA-Z]{0,2}\d{0,4}$" ref)))

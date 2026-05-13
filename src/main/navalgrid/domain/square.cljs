@@ -3,27 +3,6 @@
             [navalgrid.math :as math]
             [navalgrid.domain.geo :as geo]))
 
-(defn shift
-  "Returns square after shifting it by factor in the direction of orientation."
-  [square orientation factor]
-  (let [{[nw-lat nw-lon] :nw [se-lat se-lon] :se} square]
-    (cond
-      (= :h orientation)
-      (let [dLon (math/to-degrees (geo/smallest-lon-diff (math/to-radians nw-lon) (math/to-radians se-lon)))
-            dist (* factor dLon)]
-        (-> square
-            (assoc-in [:nw 1] (geo/normalize-lon (math/round 3 (+ nw-lon dist))))
-            (assoc-in [:se 1] (geo/normalize-lon (math/round 3 (+ se-lon dist))))))
-
-      (= :v orientation)
-      (let [dLat (- se-lat nw-lat)
-            dist (* factor dLat)]
-        (-> square
-            (assoc-in [:nw 0] (math/round 3 (+ nw-lat dist)))
-            (assoc-in [:se 0] (math/round 3 (+ se-lat dist)))))
-
-      :default square)))
-
 (defn steps
   "Returns [e s] with the number of steps to go in eastern or southern direction to select one of nine sub-squares or
   in custom layout `sub`."
@@ -34,8 +13,29 @@
         [(mod i (count (first sub))) (quot i (count (first sub)))]))
     [(mod (dec n) 3) (quot (dec n) 3)]))
 
-(defn sub-square
-  "Returns sub-square n for provided square.
+(defn shift
+  "Returns square after shifting it by factor in the direction of orientation."
+  [square orientation factor]
+  (let [{[nw-lat nw-lon] :nw [se-lat se-lon] :se} square]
+    (cond
+      (= :h orientation)
+      (let [dLon (math/to-degrees (geo/smallest-lon-diff (math/to-radians nw-lon) (math/to-radians se-lon)))
+            dist (* factor dLon)]
+        (-> square
+            (assoc-in [:nw 1] (geo/normalize-180 (math/round 3 (+ nw-lon dist))))
+            (assoc-in [:se 1] (geo/normalize-180 (math/round 3 (+ se-lon dist))))))
+
+      (= :v orientation)
+      (let [dLat (- se-lat nw-lat)
+            dist (* factor dLat)]
+        (-> square
+            (assoc-in [:nw 0] (math/round 3 (+ nw-lat dist)))
+            (assoc-in [:se 0] (math/round 3 (+ se-lat dist)))))
+
+      :default square)))
+
+(defn def->sub
+  "Returns sub-square n for provided square definition.
   Example: sub-square 5 for square AK1 would be AK15"
   [{:keys [id nw se sub]} n]
   (let [[e s] (if sub [(count (first sub)) (count sub)] [3 3])
@@ -46,23 +46,23 @@
           (shift :h h)
           (shift :v v)))))
 
-(defn regular-square
+(defn def->regular
   "Returns 3-by-3-square that matches reference ref by calculating from definition def.
   Example: for ref CG1234 and def CG, the sub-square will be calculated based on CG
   Example 2: for ref CG and def CG, def will be returned"
   [ref def]
   (loop [refs (map utils/str->int (drop (count (:id def)) ref))
-         square def]
-    (if (or (nil? square) (empty? refs))
-      square
-      (recur (rest refs) (sub-square square (first refs))))))
+         res def]
+    (if (or (nil? res) (empty? refs))
+      res
+      (recur (rest refs) (def->sub res (first refs))))))
 
 (defn two-by-five-subs [so]
   (if (= so :v)
     [[1 2] [3 4] [5 6] [7 8] [9 10]]
     [[1 2 3 4 5] [6 7 8 9 10]]))
 
-(defn two-by-five-square
+(defn def->2by5
   "Returns 2-by-5-square that matches reference ref by calculating from definition def.
   Example: for ref CG1234 and def CG, the sub-square will be calculated based on CG
   Example 2: for ref CG and def CG, def will be returned"
@@ -74,24 +74,25 @@
         refs (map utils/str->int (seq (drop 2 ref)))
         n (if (= 0 (first refs)) 10 (second refs))]
     (when-let [[h v] (steps n (two-by-five-subs so))]
-      (regular-square
+      (def->regular
         ref
         (-> {:id (apply str (take 4 ref)) :nw nw :se [lat-s lon-e]}
             (shift :h h)
             (shift :v v))))))
 
-(defn cleanup [def]
-  (dissoc def :sub))
-
-(defn from-square-def [ref def]
+(defn def->square
+  "Returns the square with reference ref calculated from definition def."
+  [ref def]
   (when def
-    (cleanup
-      (cond
-        (= (:id def) ref) def
-        (:so def) (two-by-five-square ref def)
-        :default (regular-square ref def)))))
+    (cond
+      (= (:id def) ref) def
+      (:so def) (def->2by5 ref def)
+      :default (def->regular ref def))))
 
-(defn sub-square-refs [ref two-by-five?]
+(defn sub-square-refs
+  "Returns a collection of square references for all theoretically possible sub-squares of ref.
+  Squares matching the reference may not necessarily exist, e.g. for partial squares."
+  [ref two-by-five?]
   (let [n (count ref)
         i (last ref)]
     (when (and (>= n 2) (< n 6))
@@ -99,18 +100,30 @@
         (map #(str (subs ref 0 (dec (count ref))) %) (cons (str "0" i) (map #(+ (* 10 i) %) (range 1 10))))
         (map #(str ref %) [1 2 3 4 5 6 7 8 9])))))
 
+(defn nw-se
+  "Returns a vector of the NW and SE coordinates of the smallest possible enclosing rectangle for the provided square."
+  [{:keys [nw se poly]}]
+  (if poly
+    (let [lats (map first poly)
+          lons (map second poly)]
+      [[(apply max lats) (apply min lons)]
+       [(apply min lats) (apply max lons)]])
+    [nw se]))
+
 (defn bounds
   "Returns a vector of the NW, NE, SE, and SW coordinates of the smallest possible enclosing rectangle for the provided square."
-  [{:keys [nw se poly]}]
-  (let [[nw se] (if poly
-                  (let [lats (map first poly)
-                        lons (map second poly)]
-                    [[(apply max lats) (apply min lons)]
-                     [(apply min lats) (apply max lons)]])
-                  [nw se])
+  [square]
+  (let [[nw se] (nw-se square)
         ne [(first nw) (second se)]
         sw [(first se) (second nw)]]
     [nw ne se sw]))
+
+(defn contains-coords?
+  "Returns whether coordinates lat and lon are within the boundary of square."
+  [square [lat lon]]
+  (when square
+    (let [nw-se (nw-se square)]
+      (and (geo/contains-lat? nw-se lat) (geo/contains-lon? nw-se lon)))))
 
 (defn center-coord
   "Returns the center coord of the bounds of the provided square."

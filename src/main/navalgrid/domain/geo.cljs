@@ -1,6 +1,6 @@
 (ns navalgrid.domain.geo
   (:require [navalgrid.math :as math]
-            [navalgrid.utils :refer [lpad num->str finite? error]]))
+            [navalgrid.utils :refer [finite? error]]))
 
 (def earth-radius-nmi 3440)
 
@@ -77,7 +77,7 @@
           (* 2 (math/atan2 (math/sqrt x) (math/sqrt (- 1 x))))
           (* x earth-radius-nmi))))
 
-(defn normalize-lon
+(defn normalize-180
   "Returns the normalized value for longitude lon if outside -180°..180° otherwise lon.
   Example: a lon of 181° is being normalized to -179°."
   [lon]
@@ -85,6 +85,12 @@
     (> lon 180) (- lon 360)
     (< lon -180) (+ lon 360)
     :default lon))
+
+(defn normalize-360
+  "Returns the normalized value for longitude lon if outside 0°..360° otherwise lon.
+  Example: a lon of -10° is being normalized to 350°."
+  [lon]
+  (mod (+ lon 360) 360))
 
 (defn lon-range
   "Returns a collection of longitudes along the shortest possible rhumb line between longitudes lon1 and lon2 with a
@@ -95,8 +101,8 @@
   (let [dLon (- lon2 lon1)
         range' #(concat (range %1 %2 (/ (- %2 %1) div)) [lon2])]
     (cond
-      (< dLon -180) (map normalize-lon (range' lon1 (+ lon1 (- 180 lon1) (+ 180 lon2))))
-      (> dLon 180) (map normalize-lon (range' lon1 (- lon1 (+ 180 lon1) (- 180 lon2))))
+      (< dLon -180) (map normalize-180 (range' lon1 (+ lon1 (- 180 lon1) (+ 180 lon2))))
+      (> dLon 180) (map normalize-180 (range' lon1 (- lon1 (+ 180 lon1) (- 180 lon2))))
       :default (range' lon1 lon2))))
 
 (defn lat-range
@@ -118,32 +124,17 @@
       (= lon1 lon2) (map (fn [x] [x lon1]) (lat-range lat1 lat2 div))
       :else (throw (error (str "Invalid bearing from " coords1 " to " coords2 ". Must be one of 0°, 90°, 180°, 270°."))))))
 
-(defn format-coord [deg mode is-lat?]
-  (let [hem (cond
-              (and is-lat? (pos? deg)) "N"
-              (and is-lat? (neg? deg)) "S"
-              (and (not is-lat?) (pos? deg)) "E"
-              :else "W")
-        abs-deg (math/fabs deg)
-        d (int abs-deg)
-        rem-mins (* 60 (- abs-deg d))
-        m (int rem-mins)
-        s (math/round (* 60 (- rem-mins m)))
-        {s' :s m' :m d' :d} (let [carry-m (int (quot s 60))
-                                  s2 (mod s 60)
-                                  m2 (+ m carry-m)
-                                  carry-d (int (quot m2 60))
-                                  m3 (mod m2 60)
-                                  d2 (+ d carry-d)]
-                              {:s s2 :m m3 :d d2})
-        n (if is-lat? 2 3)
-        deg-str (lpad d' n "0")]
-    (case mode
-      :dd (str (lpad (num->str abs-deg 3) (if is-lat? 6 7) "0") "°" hem)
-      :dmm (str deg-str "°" (lpad (num->str (+ m' (/ s' 60.0)) 2) 5 "0") "'" hem)
-      :dms (str deg-str "°" (lpad m' 2 "0") "'" (lpad s' 2 "0") "\"" hem)
-      :jerry (str deg-str " " (lpad (math/round (+ m' (/ s' 60.0))) 2 "0") hem)
-      (str deg))))
+(defn contains-lat?
+  "Returns whether latitude lat is located within the boundary defined by the coordinates nw and se."
+  [[nw se] lat]
+  (and (>= (first nw) lat) (<= (first se) lat)))
 
-(defn coords->str [[lat lon] format]
-  (str (format-coord lat format true) ", " (format-coord lon format false)))
+(defn contains-lon?
+  "Returns whether longitude lon is located within the boundary defined by the coordinates nw and se."
+  [[nw se] lon]
+  (let [nw-lon (second nw)
+        se-lon (second se)]
+    (if (> (math/fabs (- (math/to-radians se-lon) (math/to-radians nw-lon))) math/PI)
+      (let [lon' (normalize-360 lon)]
+        (and (>= (normalize-360 se-lon) lon') (<= (normalize-360 nw-lon) lon')))
+      (and (>= se-lon lon) (<= nw-lon lon)))))

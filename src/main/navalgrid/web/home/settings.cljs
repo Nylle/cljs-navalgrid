@@ -1,6 +1,6 @@
 (ns navalgrid.web.home.settings
   (:require [re-frame.core :as rf]
-            [navalgrid.domain.geo :as geo]
+            [navalgrid.domain.coords :as coords]
             [navalgrid.web.storage :as s]))
 
 (rf/reg-sub :prefs/format (fn [db _] (:format db)))
@@ -13,11 +13,11 @@
 
 (def formats
   (let [example [52.52001 13.40495]]
-    [[:dms (str (geo/coords->str example :dms) " (DMS)")]
-     [:dmm (str (geo/coords->str example :dmm) " (DMM)")]
-     [:dd (str (geo/coords->str example :dd) " (DD)")]
-     [:jerry (str (geo/coords->str example :jerry) " (Concise)")]
-     [:deg (str (geo/coords->str example :deg) " (Signed Decimal)")]]))
+    [[:dms (str (coords/coords->str example :dms) " (DMS)")]
+     [:dmm (str (coords/coords->str example :dmm) " (DMM)")]
+     [:dd (str (coords/coords->str example :dd) " (DD)")]
+     [:jerry (str (coords/coords->str example :jerry) " (Concise)")]
+     [:deg (str (coords/coords->str example :deg) " (Signed Decimal)")]]))
 
 (defn format-selector []
   (let [current (rf/subscribe [:prefs/format])]

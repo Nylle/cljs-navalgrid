@@ -12,7 +12,7 @@
   (fn [db _]
     (let [scale (m/scale-denominator)
           ref (-> (router/get-square-ref-from-url) (model/str->ref))
-          square (model/find-square ref)
+          square (model/ref->square ref)
           region (model/region (:id square))
           format (some-> (storage/ls-get :format) (as-> v (if (string? v) (keyword v) v)))]
       (assoc db :query ref :scale scale :square square :region region :modal nil :format (or format :dms)))))
@@ -21,7 +21,7 @@
   :query/changed
   (fn [{:keys [db]} [_ query]]
     (let [ref (model/str->ref query)
-          square (model/find-square ref)
+          square (model/ref->square ref)
           region (model/region (:id square))]
       {:db     (assoc db :query ref :square square :region region)
        :run-do (fn []

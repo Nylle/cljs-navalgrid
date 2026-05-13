@@ -1,7 +1,7 @@
 (ns navalgrid.web.home.view
   (:require [re-frame.core :as rf]
             [reagent.core :as r]
-            [navalgrid.domain.geo :as geo]
+            [navalgrid.domain.coords :as coords]
             [navalgrid.web.clipboard :as c]
             [navalgrid.web.modal :refer [modal]]
             [navalgrid.map.core :as m]
@@ -18,7 +18,7 @@
 
 (defn coord [x]
   (let [format @(rf/subscribe [:format])
-        value (geo/coords->str x format)]
+        value (coords/coords->str x format)]
     [:span.coord {:title "Copy to Clipboard" :on-click #(c/copy! value)} value]))
 
 (defn insert-a-umlaut [el]
