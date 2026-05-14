@@ -4,11 +4,15 @@
 
 (deftest finite?-test
   (is (= true (sut/finite? 1)))
+  (is (= true (sut/finite? 1.001)))
   (is (= false (sut/finite? "1")))
   (is (= false (sut/finite? nil))))
 
 (deftest str->int-test
   (is (= 12 (sut/str->int "12"))))
+
+(deftest str->float-test
+  (is (= 1.2 (sut/str->float "1.2"))))
 
 (deftest lpad-test
   (is (= "0002" (sut/lpad 2.0 4 0)))

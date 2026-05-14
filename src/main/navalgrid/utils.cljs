@@ -6,6 +6,9 @@
 (defn str->int [x]
   (js/parseInt x))
 
+(defn str->float [x]
+  (js/parseFloat x))
+
 (defn lpad [s n pad]
   (.padStart (str s) n (str pad)))
 

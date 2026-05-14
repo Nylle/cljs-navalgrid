@@ -1,13 +1,21 @@
 (ns navalgrid.domain.coords
-  (:require [navalgrid.math :as math]
-            [navalgrid.utils :refer [lpad num->str]]))
+  (:require [clojure.string :as str]
+            [navalgrid.math :as math]
+            [navalgrid.utils :refer [lpad num->str str->float]]))
 
-(defn format-coord [deg mode is-lat?]
-  (let [hem (cond
-              (and is-lat? (pos? deg)) "N"
-              (and is-lat? (neg? deg)) "S"
-              (and (not is-lat?) (pos? deg)) "E"
-              :else "W")
+(defn sign->hem [deg lat?]
+  (cond
+    (and lat? (pos? deg)) "N"
+    (and lat? (neg? deg)) "S"
+    (and (not lat?) (pos? deg)) "E"
+    :else "W"))
+
+(defn hem->sign [hem]
+  (let [h (-> (or hem "") (str/trim) (str/upper-case))]
+    (if (contains? #{"S" "W" "-"} h) -1 1)))
+
+(defn format-coords [deg mode is-lat?]
+  (let [hem (sign->hem deg is-lat?)
         abs-deg (math/fabs deg)
         d (int abs-deg)
         rem-mins (* 60 (- abs-deg d))
@@ -30,4 +38,50 @@
       (str deg))))
 
 (defn coords->str [[lat lon] format]
-  (str (format-coord lat format true) ", " (format-coord lon format false)))
+  (str (format-coords lat format true) ", " (format-coords lon format false)))
+
+(defn parse-dd
+  "`-001.0001°` or `001.0001° N` (° is optional)"
+  [s]
+  (let [re (re-pattern "^([+-]?)(\\d{1,3}([.]\\d+)?)°?( ?[NOESW])?$")]
+    (when-let [[_ sig dd _ hem] (re-matches re s)]
+      (-> (or hem sig)
+          (hem->sign)
+          (* (str->float dd))))))
+
+(defn parse-dmm
+  "`-001°01.001'` or `001°01.001' N` (°/' can be any non-numeral)"
+  [s]
+  (let [re (re-pattern "^([+-])?(\\d{1,3})[^\\d]([0-5]?[0-9]([.]\\d+)?)[^\\dNOESW]?( ?[NOESW])?$")]
+    (when-let [[_ sig deg min _ hem] (re-matches re s)]
+      (-> (str->float min)
+          (/ 60)
+          (+ (str->float deg))
+          (* (hem->sign (or hem sig)))))))
+
+(defn parse-dms
+  "`-001°01'01.01''` or `001°01'01.01'' N` (°/'/'' can be any non-numeral)"
+  [s]
+  (let [re (re-pattern "^([+-])?(\\d{1,3})[^\\d]([0-5]?[0-9])[^\\d]([0-5]?[0-9]([.]\\d+)?)(\"\"|[^\\dNOESW]{1}|'')?( ?[NOESW])?$")]
+    (when-let [[_ sig deg min sec _ _ hem] (re-matches re s)]
+      (-> (str->float sec)
+          (/ 60)
+          (+ (str->float min))
+          (/ 60)
+          (+ (str->float deg))
+          (* (hem->sign (or hem sig)))))))
+
+(defn parse-coords [s]
+  (when s
+    (loop [[f & rs] [parse-dd parse-dmm parse-dms]]
+      (when f
+        (let [res (f s)]
+          (if (nil? res) (recur rs) res))))))
+
+(defn str->coords [s]
+  (when s
+    (->> (str/split s #",")
+         (map str/trim)
+         (remove str/blank?)
+         (map parse-coords)
+         vec)))
