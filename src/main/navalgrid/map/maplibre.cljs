@@ -4,6 +4,8 @@
 
 (defonce map-inst (atom nil))
 (defonce markers (atom nil))
+(defonce source-ids (atom #{}))
+(defonce layer-ids (atom #{}))
 
 (defn create! [ref props loaded-fn moved-fn]
   (when-let [el @ref]
@@ -40,22 +42,34 @@
 (defn add-source! [id geojson]
   (when-let [^js m @map-inst]
     (.addSource m id (clj->js geojson))
+    (swap! source-ids conj id)
     (reset! map-inst m)))
 
 (defn remove-source! [id]
   (when-let [^js m @map-inst]
+    (swap! source-ids disj id)
     (when (.getSource m id) (.removeSource m id))
     (reset! map-inst m)))
+
+(defn remove-sources! [prefix]
+  (doseq [sid (->> @source-ids (filter #(-> % (.startsWith prefix))))]
+    (remove-source! sid)))
 
 (defn add-layer! [layer]
   (when-let [^js m @map-inst]
     (.addLayer m (clj->js layer))
+    (swap! layer-ids conj (:id layer))
     (reset! map-inst m)))
 
 (defn remove-layer! [id]
   (when-let [^js m @map-inst]
+    (swap! layer-ids disj id)
     (when (.getLayer m id) (.removeLayer m id))
     (reset! map-inst m)))
+
+(defn remove-layers! [prefix]
+  (doseq [lid (->> @layer-ids (filter #(-> % (.startsWith prefix))))]
+    (remove-layer! lid)))
 
 (defn hide-layer! [id]
   (when-let [^js m @map-inst]
@@ -72,11 +86,12 @@
     (.fitBounds m (clj->js [sw-lnglat ne-lnglat]) (clj->js {:padding 50}))
     (reset! map-inst m)))
 
-(defn create-marker [text lnglat class]
-  (let [div (js/document.createElement "div")
+(defn create-marker [text lnglat class offset]
+  (let [[x y] (or offset [0 0])
+        div (js/document.createElement "div")
         _ (set! (.-className div) class)
         _ (set! (.-textContent div) text)]
-    (-> (maplibregl/Marker. #js {:element div})
+    (-> (maplibregl/Marker. #js {:element div :offset #js [x y]})
         (.setLngLat (clj->js lnglat)))))
 
 (defn add-marker! [id ^js marker]

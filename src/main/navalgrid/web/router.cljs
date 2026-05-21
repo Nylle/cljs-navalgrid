@@ -9,6 +9,7 @@
 
 (defn segments->path [segments]
   (->> (map js/encodeURIComponent segments)
+       (map #(str/replace-all % #"%2C" ","))
        (remove str/blank?)
        (str/join "/")
        (str "/")))
@@ -22,13 +23,18 @@
 (defn get-path []
   (path->segments (.-pathname js/window.location)))
 
-(defn get-square-ref-from-url []
+(defn get-ref-from-url []
   (let [path (get-path)]
     (when (= "square" (first path))
       (second path))))
 
-(defn set-square-url! [square]
-  (if square
-    (set-path! ["square" (:id square)])
-    (set-path! [])))
+(defn get-coords-from-url []
+  (let [path (get-path)]
+    (when (= "coords" (first path))
+      (second path))))
 
+(defn set-query-url! [square coords]
+  (cond
+    (seq coords) (set-path! ["coords" (str (first coords) "," (second coords))])
+    (not (nil? square)) (set-path! ["square" (:id square)])
+    :default (set-path! [])))

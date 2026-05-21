@@ -14,6 +14,7 @@
 (rf/reg-sub :scale (fn [db _] (:scale db)))
 (rf/reg-sub :region (fn [db _] (:region db)))
 (rf/reg-sub :format (fn [db _] (:format db)))
+(rf/reg-sub :location (fn [db _] (:location db)))
 
 
 (defn coord [x]
@@ -29,36 +30,40 @@
     (fn []
       [:span.query
        [:button.sec.left {:title    "Insert Ä"
-                     :on-click (insert-a-umlaut el)} "Ä"]
+                          :on-click (insert-a-umlaut el)} "Ä"]
        [:input {:type        "text"
-                :placeholder "Square Reference…"
+                :placeholder "Square or coordinates…"
                 :ref         (fn [n] (reset! el n))
                 :value       @(rf/subscribe [:query])
                 :on-change   #(rf/dispatch [:query/changed (-> % .-target .-value)])}]
        [:button.sec.right {:type     "button"
-                     :title    "Settings"
-                     :on-click (fn [] (rf/dispatch [:modal/open {:title "Coordinates Format" :body [settings/format-selector]}]))} [:i "settings"]]])))
+                           :title    "Settings"
+                           :on-click (fn [] (rf/dispatch [:modal/open {:title "Coordinates Format" :body [settings/format-selector]}]))} [:i "settings"]]])))
 
 (defn details [square]
-  (let [res [:dl
-             [:dt "Centre"] [:dd [coord (:center square)]]
-             [:dt.gap "Label"] [:dd.gap [coord (:label square)]]
-             [:dt.gap "Region"] [:dd.gap (:name @(rf/subscribe [:region]))]
-             [:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
-             [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
-             [:dt "Max. Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
-             [:dt.gap "Min. Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]]]
-    (if (:poly square)
-      (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
-        (into res (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square))))
-      (into res
-            [[:dt "NW"] [:dd [coord (:nw square)]]
-             [:dt "NE"] [:dd [coord [(first (:nw square)) (second (:se square))]]]
-             [:dt "SE"] [:dd [coord (:se square)]]
-             [:dt "SW"] [:dd [coord [(first (:se square)) (second (:nw square))]]]]))))
+  (let [loc @(rf/subscribe [:location])
+        reg @(rf/subscribe [:region])
+        reg-name (:name reg)]
+    (-> [:dl]
+        (into (if loc [[:dt.gap "Location"] [:dd.gap [coord loc]]] []))
+        (into [[:dt.gap "Square"] [:dd.gap (:id square)]
+                   [:dt "Centre"] [:dd [coord (:center square)]]
+                   [:dt.gap "Label"] [:dd.gap [coord (:label square)]]])
+        (into (if reg-name [[:dt.gap "Region"] [:dd.gap reg-name]] []))
+        (into [[:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
+               [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
+               [:dt "Max. Width"] [:dd (str (get-in square [:dimensions :max-width]) " nmi")]
+               [:dt.gap "Min. Width"] [:dd.gap (str (get-in square [:dimensions :min-width]) " nmi")]])
+        (into (if (:poly square)
+                (let [letters (cons "NW" (map #(str (char %) ")") (range 98 123)))]
+                  (mapcat (fn [a b] [[:dt a] [:dd [coord b]]]) letters (:poly square)))
+                [[:dt "NW"] [:dd [coord (:nw square)]]
+                 [:dt "NE"] [:dd [coord [(first (:nw square)) (second (:se square))]]]
+                 [:dt "SE"] [:dd [coord (:se square)]]
+                 [:dt "SW"] [:dd [coord [(first (:se square)) (second (:nw square))]]]])))))
 
 (defn output []
-  (if-let [square @(rf/subscribe [:square])]
+  (if-let [square (first @(rf/subscribe [:square]))]
     [details square]
     [:div ""]))
 

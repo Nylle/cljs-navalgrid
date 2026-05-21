@@ -76,12 +76,15 @@
     (loop [[f & rs] [parse-dd parse-dmm parse-dms]]
       (when f
         (let [res (f s)]
-          (if (nil? res) (recur rs) res))))))
+          (if (nil? res) (recur rs) (math/round 5 res)))))))
 
 (defn str->coords [s]
-  (when s
-    (->> (str/split s #",")
-         (map str/trim)
-         (remove str/blank?)
-         (map parse-coords)
-         vec)))
+  (when (and s (not= "" s))
+    (let [res (->> (str/split s #",")
+                   (map str/trim)
+                   (remove str/blank?)
+                   (map parse-coords)
+                   (remove nil?)
+                   vec)]
+      (when (> (count res) 1)
+        res))))

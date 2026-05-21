@@ -22,15 +22,15 @@
       (let [dLon (math/to-degrees (geo/smallest-lon-diff (math/to-radians nw-lon) (math/to-radians se-lon)))
             dist (* factor dLon)]
         (-> square
-            (assoc-in [:nw 1] (geo/normalize-180 (math/round 3 (+ nw-lon dist))))
-            (assoc-in [:se 1] (geo/normalize-180 (math/round 3 (+ se-lon dist))))))
+            (assoc-in [:nw 1] (geo/normalize-180 (math/round 5 (+ nw-lon dist))))
+            (assoc-in [:se 1] (geo/normalize-180 (math/round 5 (+ se-lon dist))))))
 
       (= :v orientation)
       (let [dLat (- se-lat nw-lat)
             dist (* factor dLat)]
         (-> square
-            (assoc-in [:nw 0] (math/round 3 (+ nw-lat dist)))
-            (assoc-in [:se 0] (math/round 3 (+ se-lat dist)))))
+            (assoc-in [:nw 0] (math/round 5 (+ nw-lat dist)))
+            (assoc-in [:se 0] (math/round 5 (+ se-lat dist)))))
 
       :default square)))
 
@@ -131,7 +131,7 @@
   (let [[nw ne _ sw] (bounds square)
         h (second (second (geo/simple-rhumb-division nw ne 2)))
         v (first (second (geo/simple-rhumb-division nw sw 2)))]
-    [(math/round 3 v) (math/round 3 h)]))
+    [(math/round 5 v) (math/round 5 h)]))
 
 (defn dimensions
   "Returns the dimensions (height, width) of the bounds of the provided square."

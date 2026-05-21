@@ -47,7 +47,7 @@
     (is (= (sut/find-by-id "OT") {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]}))
     (is (= (sut/find-by-id "OT1") {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}))
     (is (= (sut/find-by-id "OT2") nil))
-    (is (= (sut/find-by-id "OT7999") {:id "OT7999" :nw [25.8 170.467] :se [25.7 170.6]})))
+    (is (= (sut/find-by-id "OT7999") {:id "OT7999" :nw [25.8 170.46667] :se [25.7 170.6]})))
   (testing "large partial square YC with row [7 8 9]"
     (is (= (sut/find-by-id "YC") {:id "YC" :nw [85.1 126.5] :se [82.4 -172.75] :sub [[7 8 9]]}))
     (is (= (sut/find-by-id "YC1") nil))
@@ -70,7 +70,7 @@
     (is (= (sut/find-by-id "AL5") {:id "AL5" :nw [56.4 -23.5] :se [53.7 -20.5] :sub [[1 2] [4 5] [7 8]]}))
     (is (= (sut/find-by-id "AL51") {:id "AL51" :nw [56.4 -23.5] :se [55.5 -22]}))
     (is (= (sut/find-by-id "AL53") nil))
-    (is (= (sut/find-by-id "AL5899") {:id "AL5899" :nw [53.8 -20.667] :se [53.7 -20.5]}))
+    (is (= (sut/find-by-id "AL5899") {:id "AL5899" :nw [53.8 -20.66667] :se [53.7 -20.5]}))
     (is (= (sut/find-by-id "AL59") nil))
     (is (= (sut/find-by-id "AL599") nil))
     (is (= (sut/find-by-id "AL5999") nil)))
@@ -87,13 +87,13 @@
 (deftest find-all-by-ids-test
   (is (= (sut/find-all-by-ids ["XX" "ÄG1" "OT7999" "YC9999" "MA48" "AM6" "AK1" "AK0199" "AL5899" "AD98" "YY"])
          [{:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}
-          {:id "OT7999" :nw [25.8 170.467] :se [25.7 170.6]}
+          {:id "OT7999" :nw [25.8 170.46667] :se [25.7 170.6]}
           {:id "YC9999" :nw [82.5 -173.5] :se [82.4 -172.75]}
           {:id "MA48" :nw [29.3 38.9] :se [28.4 39.8]}
           {:id "AM6" :poly [[56.4 -7] [56.4 -4] [55.5 -4] [55.5 -2.5] [53.7 -2.5] [53.7 -7]]}
           {:id "AK1" :nw [60.9 -37.3] :se [56.4 -33.7] :so :v}
           {:id "AK0199" :nw [56.5 -33.9] :se [56.4 -33.7]}
-          {:id "AL5899" :nw [53.8 -20.667] :se [53.7 -20.5]}
+          {:id "AL5899" :nw [53.8 -20.66667] :se [53.7 -20.5]}
           {:id "AD98" :nw [60 -39.1] :se [59.1 -37.3]}])))
 
 (deftest extract-all-test

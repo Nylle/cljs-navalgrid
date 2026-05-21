@@ -11,5 +11,6 @@
 (deftest segments->path-test
   (is (= "/foo/bar" (sut/segments->path ["foo" "bar"])) "joins segments to path")
   (is (= "/f%20o/b%2Fr" (sut/segments->path ["f o" "b/r"])) "encodes URI component")
+  (is (= "/foo/-1.1,2.5" (sut/segments->path ["foo" "-1.1,2.5"])) "keeps comma, period, and minus human-readable")
   (is (= "/" (sut/segments->path ["" ""])) "ignores empty components")
   (is (= "/" (sut/segments->path [])) "ignores empty segments"))

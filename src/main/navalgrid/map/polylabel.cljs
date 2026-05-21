@@ -138,4 +138,4 @@
              bounding-cell           (new-cell (+ min-x (/ width 2)) (+ min-y (/ height 2)) 0 polygon)
              best-cell-candidate     (if (> (:d bounding-cell) (:d centroid-cell)) bounding-cell centroid-cell)
              result                  (find-best-cell (sort-by :max cells) best-cell-candidate polygon precision)]
-         [(math/round 3 (:x result)) (math/round 3 (:y result))])))))
+         [(math/round 5 (:x result)) (math/round 5 (:y result))])))))

@@ -330,7 +330,7 @@
         (let [text "hello"
               lnglat [12.34 56.78]
               class "my-css-class"
-              actual (sut/create-marker text lnglat class)]
+              actual (sut/create-marker text lnglat class nil)]
 
           (testing "returns new marker"
             (is (identical? mock-marker actual)))

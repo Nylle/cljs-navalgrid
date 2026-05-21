@@ -9,6 +9,9 @@
                      :zoom               1
                      :attributionControl false})
 
+(def outer-prefix "outer-")
+(def inner-prefix "inner-")
+
 (defn create-fn
   "Returns a fn that creates a new map singleton."
   [parent loaded-fn moved-fn] (fn [_] (m/create! parent map-properties loaded-fn moved-fn)))
@@ -25,10 +28,13 @@
     (math/round -2 (m/get-scale-denominator lat zoom))))
 
 (defn bounds
-  "Returns a vector of the SW and NE coordinates of the smallest possible enclosing rectangle for the provided square."
-  [square]
-  (let [[nw _ se _] (s/bounds square)]
-    [[(first se) (second nw)] [(first nw) (second se)]]))
+  "Returns a vector of the SW and NE coordinates of the smallest possible enclosing rectangle for the provided squares."
+  [squares]
+  (let [corners (mapcat (fn [x] (let [[nw _ se _] (s/bounds x)] [nw se])) squares)
+        nws (map first corners)
+        ses (map second corners)]
+    [[(apply min nws) (apply min ses)]
+     [(apply max nws) (apply max ses)]]))
 
 (defn fix-for-antimeridian
   "Returns a vector of lnglats where values on opposite sides of the antimeridian (180°) are de-normalized in order for
@@ -106,34 +112,41 @@
                             :text-halo-width 1}})))
 
 (defn set-square! [square]
-  (let [outer "outer" inner "inner"]
-    (m/clear-markers!)
-    (m/remove-layer! outer)
-    (m/remove-source! outer)
-    (m/remove-layer! inner)
-    (m/remove-source! inner)
-    (if square
-      (let [subs (:sub-squares square)]
-        (m/hide-layer! "all-squares")
-        (m/hide-layer! "all-labels")
-        (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
-        (m/add-layer! {:id     outer
-                       :type   "line"
-                       :source outer
-                       :layout {:line-cap "square"}
-                       :paint  {:line-color "#038D3C"
-                                :line-width 3}})
-        (m/add-marker! "marker-outer" (m/create-marker (:id square) (coord<->lngLat (:label square)) "marker-outer"))
-        (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
-        (m/add-layer! {:id     inner
-                       :type   "line"
-                       :source inner
-                       :layout {:line-cap "square"}
-                       :paint  {:line-color "#038D3C"
-                                :line-width 2}})
-        (m/fit-bounds! (map coord<->lngLat (bounds square))))
-      (do
-        (m/show-layer! "all-labels")
-        (m/show-layer! "all-squares")
-        (m/set-center! [0 40])
-        (m/set-zoom! 1)))))
+  (let [outer (str outer-prefix (:id square))
+        inner (str inner-prefix (:id square))
+        subs (:sub-squares square)]
+    (m/add-source! outer (-> (square->polygon square) (polygon->geojson)))
+    (m/add-layer! {:id     outer
+                   :type   "line"
+                   :source outer
+                   :layout {:line-cap "square"}
+                   :paint  {:line-color "#038D3C"
+                            :line-width 3}})
+    (m/add-marker! (str "marker-" outer) (m/create-marker (:id square) (coord<->lngLat (:label square)) "marker-outer" nil))
+    (m/add-source! inner (->> (mapv square->polygon subs) (polygons->geojson)))
+    (m/add-layer! {:id     inner
+                   :type   "line"
+                   :source inner
+                   :layout {:line-cap "square"}
+                   :paint  {:line-color "#038D3C"
+                            :line-width 2}})))
+
+(defn set-squares! [squares coords]
+  (m/clear-markers!)
+  (m/remove-layers! outer-prefix)
+  (m/remove-sources! outer-prefix)
+  (m/remove-layers! inner-prefix)
+  (m/remove-sources! inner-prefix)
+  (if (empty? squares)
+    (do
+      (m/show-layer! "all-labels")
+      (m/show-layer! "all-squares")
+      (m/set-center! [0 40])
+      (m/set-zoom! 1))
+    (do
+      (m/hide-layer! "all-squares")
+      (m/hide-layer! "all-labels")
+      (run! set-square! squares)
+      (when coords
+        (m/add-marker! "marker-location" (m/create-marker "✗" (coord<->lngLat coords) "marker-location" [0 -1])));; ✕✗✘✕
+      (m/fit-bounds! (map coord<->lngLat (bounds squares))))))

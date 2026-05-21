@@ -260,3 +260,13 @@ span.coord {
     color: rgba(var(--primary-rgb), 0.5);
     -webkit-text-stroke: 2px rgba(var(--primary-rgb), 1);
 }
+
+.marker-location {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 64px;
+    font-weight: lighter;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}

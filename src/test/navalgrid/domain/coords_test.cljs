@@ -171,6 +171,8 @@
     (is (= -1.11125 (sut/parse-dms "001d06m40.5s W")))))
 
 (deftest str->coords-test
+  (is (= nil (sut/str->coords "-, -")))
+  (is (= nil (sut/str->coords "-01°06.600', -")))
   (is (= [-1.0001 1.0001] (sut/str->coords "-01.0001°, 01.0001° E")) "DD")
   (is (= [-1.11 1.11] (sut/str->coords "-01°06.600', 001°06.600' E")) "DMM")
   (is (= [-1.11125 1.11125] (sut/str->coords "-001°06'40.5\", 001d06m40.5s E")) "DMS")

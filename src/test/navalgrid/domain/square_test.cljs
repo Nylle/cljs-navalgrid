@@ -83,7 +83,7 @@
         (is (= nil (sut/def->sub square 3)))))))
 
 (deftest def->regular-test
-  (is (= {:id "CG1234", :nw [42.8 -13.1], :se [42.7 -12.967]}
+  (is (= {:id "CG1234", :nw [42.8 -13.1], :se [42.7 -12.96667]}
          (sut/def->regular "CG1234" {:id "CG" :nw [42.9 -15.1] :se [34.8 -4.3]}))))
 
 (deftest two-by-five-subs-test
@@ -117,7 +117,7 @@
     (let [partial-square {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]}]
       (is (= {:id "OT1" :nw [33.8 167] :se [31.1 170.6]}
              (sut/def->square "OT1" partial-square)))
-      (is (= {:id "OT1999" :nw [31.2 170.467] :se [31.1 170.6]}
+      (is (= {:id "OT1999" :nw [31.2 170.46667] :se [31.1 170.6]}
              (sut/def->square "OT1999" partial-square))))))
 
 (deftest sub-square-refs-test

@@ -3,6 +3,7 @@
             [navalgrid.web.storage :as storage]
             [navalgrid.web.home.model :as model]
             [navalgrid.map.core :as m]
+            [navalgrid.domain.coords :as coords]
             [re-frame.core :as rf]))
 
 (rf/reg-fx :run-do (fn [f] (f)))
@@ -11,30 +12,36 @@
   :init
   (fn [db _]
     (let [scale (m/scale-denominator)
-          ref (-> (router/get-square-ref-from-url) (model/str->ref))
-          square (model/ref->square ref)
-          region (model/region (:id square))
+          ref (-> (router/get-ref-from-url) (model/str->ref))
+          coords (-> (router/get-coords-from-url) (coords/str->coords))
+          query (or ref coords)
+          squares (model/square ref coords)
+          region (model/region (:id (first squares)))
           format (some-> (storage/ls-get :format) (as-> v (if (string? v) (keyword v) v)))]
-      (assoc db :query ref :scale scale :square square :region region :modal nil :format (or format :dms)))))
+      (cljs.pprint/pprint (str ":init " "query=" query " ref=" ref " coords=" coords " squares=" squares))
+      (assoc db :query query :scale scale :square squares :location coords :region region :modal nil :format (or format :dms)))))
 
 (rf/reg-event-fx
   :query/changed
   (fn [{:keys [db]} [_ query]]
     (let [ref (model/str->ref query)
-          square (model/ref->square ref)
-          region (model/region (:id square))]
-      {:db     (assoc db :query ref :square square :region region)
+          coords (coords/str->coords query)
+          squares (model/square ref coords)
+          region (model/region (:id (first squares)))]
+      {:db     (assoc db :query (or ref coords query) :square squares :region region :location coords)
        :run-do (fn []
-                 (m/set-square! square)
-                 (router/set-square-url! square))})))
+                 (cljs.pprint/pprint (str ":query/changed " "query=" query " ref=" ref " coords=" coords " squares=" squares))
+                 (m/set-squares! squares coords)
+                 (router/set-query-url! (first squares) coords))})))
 
 (rf/reg-event-fx
   :map/loaded
   (fn [{:keys [db]} _]
-    (let [square (:square db)]
+    (let [squares (:square db)
+          coords (:location db)]
       {:run-do (fn []
                  (m/draw-all-large-squares!)
-                 (m/set-square! square))})))
+                 (m/set-squares! squares coords))})))
 
 (rf/reg-event-db
   :map/moved
