@@ -18,7 +18,6 @@
           squares (model/square ref coords)
           region (model/region (:id (first squares)))
           format (some-> (storage/ls-get :format) (as-> v (if (string? v) (keyword v) v)))]
-      (cljs.pprint/pprint (str ":init " "query=" query " ref=" ref " coords=" coords " squares=" squares))
       (assoc db :query query :scale scale :square squares :location coords :region region :modal nil :format (or format :dms)))))
 
 (rf/reg-event-fx
@@ -30,7 +29,6 @@
           region (model/region (:id (first squares)))]
       {:db     (assoc db :query (or ref coords query) :square squares :region region :location coords)
        :run-do (fn []
-                 (cljs.pprint/pprint (str ":query/changed " "query=" query " ref=" ref " coords=" coords " squares=" squares))
                  (m/set-squares! squares coords)
                  (router/set-query-url! (first squares) coords))})))
 
