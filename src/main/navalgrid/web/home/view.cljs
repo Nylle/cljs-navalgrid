@@ -4,6 +4,7 @@
             [navalgrid.domain.coords :as coords]
             [navalgrid.web.clipboard :as c]
             [navalgrid.web.modal :refer [modal]]
+            [navalgrid.web.tooltip :refer [with-tooltip]]
             [navalgrid.map.core :as m]
             [navalgrid.web.home.model :as model]
             [navalgrid.web.home.events]
@@ -20,7 +21,7 @@
 (defn coord [x]
   (let [format @(rf/subscribe [:format])
         value (coords/coords->str x format)]
-    [:span.coord {:title "Copy to Clipboard" :on-click #(c/copy! value)} value]))
+    [with-tooltip "Copy to Clipboard" [:span.coord {:on-click #(c/copy! value)} value]]))
 
 (defn insert-a-umlaut [el]
   (fn [] (rf/dispatch [:query/changed "Ä"]) (when-let [n @el] (.focus n))))
@@ -47,8 +48,8 @@
     (-> [:dl]
         (into (if loc [[:dt.gap "Location"] [:dd.gap [coord loc]]] []))
         (into [[:dt.gap "Square"] [:dd.gap (:id square)]
-                   [:dt "Centre"] [:dd [coord (:center square)]]
-                   [:dt.gap "Label"] [:dd.gap [coord (:label square)]]])
+               [:dt "Centre"] [:dd [coord (:center square)]]
+               [:dt.gap "Label"] [:dd.gap [coord (:label square)]]])
         (into (if reg-name [[:dt.gap "Region"] [:dd.gap reg-name]] []))
         (into [[:dt "Height"] [:dd (str (get-in square [:dimensions :height]) " nmi")]
                [:dt "Mean Width"] [:dd (str (get-in square [:dimensions :mean-width]) " nmi")]
@@ -63,9 +64,16 @@
                  [:dt "SW"] [:dd [coord [(first (:se square)) (second (:nw square))]]]])))))
 
 (defn output []
-  (if-let [square (first @(rf/subscribe [:square]))]
-    [details square]
-    [:div ""]))
+  (let [square (first @(rf/subscribe [:square]))
+        query @(rf/subscribe [:query])
+        location @(rf/subscribe [:location])
+        valid-loc? (> (count location) 1)
+        valid-ref? (and (> (count query) 1) (model/ref? query))]
+    (cond
+      square [details square]
+      valid-loc? [:div.not-found "No square found for coordinates"]
+      valid-ref? [:div.not-found "Square does not exist"]
+      :default [:div ""])))
 
 (defn map-view [parent]
   [:div {:id  "map"

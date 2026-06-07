@@ -155,9 +155,10 @@ aside dd.gap {
     margin-bottom: 1em;
 }
 
-aside div.region {
+aside div.not-found {
     margin-top: 1em;
     font-style: italic;
+    text-align: center;
 }
 
 main {
@@ -169,6 +170,8 @@ main {
 
 span.coord {
     cursor: pointer;
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
 }
 
 #canvas-top, #canvas-bottom {
