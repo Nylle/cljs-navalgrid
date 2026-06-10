@@ -19,9 +19,9 @@
 
 
 (defn coord [x]
-  [with-tooltip "Copy to Clipboard"
-   (fn [] (let [value (coords/coords->str x @(rf/subscribe [:format]))]
-            [:span.coord {:on-click #(c/copy! value)} value]))])
+  (let [fmt @(rf/subscribe [:format])
+        value (coords/coords->str x fmt)]
+    [with-tooltip "Copy to Clipboard" [:span.coord {:on-click #(c/copy! value)} value]]))
 
 (defn insert-a-umlaut [el]
   (fn [] (rf/dispatch [:query/changed "Ä"]) (when-let [n @el] (.focus n))))

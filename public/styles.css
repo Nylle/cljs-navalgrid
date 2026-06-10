@@ -171,7 +171,7 @@ main {
 span.coord {
     cursor: pointer;
     text-decoration-line: underline;
-    text-decoration-style: dashed;
+    text-decoration-style: dotted;
 }
 
 #canvas-top, #canvas-bottom {
