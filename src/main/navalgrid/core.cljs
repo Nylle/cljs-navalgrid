@@ -1,11 +1,13 @@
 (ns navalgrid.core
   (:require [reagent.dom.client :as rdc]
             [re-frame.core :as rf]
-            [navalgrid.web.home.view :as home]))
+            [navalgrid.web.home.view :as home]
+            [navalgrid.web.router :as router]))
 
 (defonce root-container (rdc/create-root (js/document.getElementById "root")))
 
 (defn mount-ui []
+  (router/init!)
   (rf/dispatch [:init])
   (rdc/render root-container [home/init]))
 

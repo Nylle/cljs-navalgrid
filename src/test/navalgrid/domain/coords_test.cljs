@@ -36,26 +36,31 @@
 
 (deftest coords->str-test
   (testing "signed decimal"
+    (is (= nil (sut/coords->str nil :deg)))
     (is (= "1, 1" (sut/coords->str [1 1] :deg)))
     (is (= "-1, 1" (sut/coords->str [-1 1] :deg)))
     (is (= "1, -1" (sut/coords->str [1 -1] :deg)))
     (is (= "-1, -1" (sut/coords->str [-1 -1] :deg))))
   (testing "DD"
+    (is (= nil (sut/coords->str nil :dd)))
     (is (= "01.100°N, 001.100°E" (sut/coords->str [1.1 1.1] :dd)))
     (is (= "01.100°S, 001.100°E" (sut/coords->str [-1.1 1.1] :dd)))
     (is (= "01.100°N, 001.100°W" (sut/coords->str [1.1 -1.1] :dd)))
     (is (= "01.100°S, 001.100°W" (sut/coords->str [-1.1 -1.1] :dd))))
   (testing "DMM"
+    (is (= nil (sut/coords->str nil :dmm)))
     (is (= "01°00.00'N, 001°00.00'E" (sut/coords->str [1 1] :dmm)))
     (is (= "01°00.00'S, 001°00.00'E" (sut/coords->str [-1 1] :dmm)))
     (is (= "01°00.00'N, 001°00.00'W" (sut/coords->str [1 -1] :dmm)))
     (is (= "01°00.00'S, 001°00.00'W" (sut/coords->str [-1 -1] :dmm))))
   (testing "DMS"
+    (is (= nil (sut/coords->str nil :dms)))
     (is (= "01°00'00\"N, 001°00'00\"E" (sut/coords->str [1 1] :dms)))
     (is (= "01°00'00\"S, 001°00'00\"E" (sut/coords->str [-1 1] :dms)))
     (is (= "01°00'00\"N, 001°00'00\"W" (sut/coords->str [1 -1] :dms)))
     (is (= "01°00'00\"S, 001°00'00\"W" (sut/coords->str [-1 -1] :dms))))
   (testing "Jerry's format"
+    (is (= nil (sut/coords->str nil :jerry)))
     (is (= "01 00N, 001 00E" (sut/coords->str [1 1] :jerry)))
     (is (= "01 00S, 001 00E" (sut/coords->str [-1 1] :jerry)))
     (is (= "01 00N, 001 00W" (sut/coords->str [1 -1] :jerry)))

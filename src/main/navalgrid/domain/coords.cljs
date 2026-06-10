@@ -37,8 +37,9 @@
       :jerry (str deg-str " " (lpad (math/round (+ m' (/ s' 60.0))) 2 "0") hem)
       (str deg))))
 
-(defn coords->str [[lat lon] format]
-  (str (format-coords lat format true) ", " (format-coords lon format false)))
+(defn coords->str [coords format]
+  (when-let [[lat lon] coords]
+    (str (format-coords lat format true) ", " (format-coords lon format false))))
 
 (defn parse-dd
   "`-001.0001°` or `001.0001° N` (° is optional)"

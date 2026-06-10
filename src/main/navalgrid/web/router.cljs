@@ -1,5 +1,6 @@
 (ns navalgrid.web.router
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [re-frame.core :as rf]))
 
 (defn path->segments [path]
   (->> (str/split path #"/")
@@ -18,7 +19,7 @@
   (let [cur (.-pathname js/window.location)
         p (segments->path segments)]
     (when (not= cur p)
-      (.replaceState js/history nil "" p))))
+      (.pushState js/history nil "" p))))
 
 (defn get-path []
   (path->segments (.-pathname js/window.location)))
@@ -38,3 +39,6 @@
     (seq coords) (set-path! ["coords" (str (first coords) "," (second coords))])
     (not (nil? square)) (set-path! ["square" (:id square)])
     :default (set-path! [])))
+
+(defn init! []
+  (.addEventListener js/window "popstate" (fn [_] (rf/dispatch [:route/changed (get-path)]))))

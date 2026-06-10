@@ -21,6 +21,19 @@
       (assoc db :query query :scale scale :square squares :location coords :region region :modal nil :format format))))
 
 (rf/reg-event-fx
+  :route/changed
+  (fn [db _]
+    (let [scale (m/scale-denominator)
+          ref (-> (router/get-ref-from-url) (model/str->ref))
+          coords (-> (router/get-coords-from-url) (coords/str->coords))
+          squares (model/square ref coords)
+          region (model/region (:id (first squares)))
+          format (or (some-> (storage/ls-get :format) (as-> v (if (string? v) (keyword v) v))) :dms)
+          query (or ref (coords/coords->str coords format))]
+      {:db     (assoc db :query query :scale scale :square squares :location coords :region region :format format)
+       :run-do (fn [] (m/set-squares! squares coords))})))
+
+(rf/reg-event-fx
   :query/changed
   (fn [{:keys [db]} [_ q]]
     (let [ref (model/str->ref q)
