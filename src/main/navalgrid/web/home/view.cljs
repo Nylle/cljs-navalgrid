@@ -3,12 +3,14 @@
             [reagent.core :as r]
             [navalgrid.domain.coords :as coords]
             [navalgrid.web.clipboard :as c]
+            [navalgrid.web.download :refer [download-fn]]
             [navalgrid.web.modal :refer [modal]]
             [navalgrid.web.tooltip :refer [with-tooltip]]
             [navalgrid.map.core :as m]
             [navalgrid.web.home.model :as model]
-            [navalgrid.web.home.events]
-            [navalgrid.web.home.settings :as settings]))
+            [navalgrid.web.home.kml :refer [square->kml]]
+            [navalgrid.web.home.settings :as settings]
+            [navalgrid.web.home.events]))
 
 (rf/reg-sub :query (fn [db _] (:query db)))
 (rf/reg-sub :square (fn [db _] (:square db)))
@@ -44,10 +46,11 @@
 (defn details [square]
   (let [loc @(rf/subscribe [:location])
         reg @(rf/subscribe [:region])
-        reg-name (:name reg)]
+        reg-name (:name reg)
+        id (:id square)]
     (-> [:dl]
         (into (if loc [[:dt.gap "Location"] [:dd.gap [coord loc]]] []))
-        (into [[:dt.gap "Square"] [:dd.gap (:id square)]
+        (into [[:dt.gap "Square"] [:dd.gap [with-tooltip "Download KML" [:span.download {:on-click (download-fn #(square->kml square) (str id ".kml"))} id]]]
                [:dt "Centre"] [:dd [coord (:center square)]]
                [:dt.gap "Label"] [:dd.gap [coord (:label square)]]])
         (into (if reg-name [[:dt.gap "Region"] [:dd.gap reg-name]] []))
