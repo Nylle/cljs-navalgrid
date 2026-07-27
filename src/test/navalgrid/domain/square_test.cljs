@@ -31,7 +31,8 @@
     (is (= [2 1] (sut/steps 6 nil)))
     (is (= [0 2] (sut/steps 7 nil)))
     (is (= [1 2] (sut/steps 8 nil)))
-    (is (= [2 2] (sut/steps 9 nil))))
+    (is (= [2 2] (sut/steps 9 nil)))
+    (is (= [2 0] (sut/steps 0 nil)) "n=0 returns same result as n=3 - 0 is not a valid sub-square id"))
   (testing "partial square with first row only"
     (is (= nil (sut/steps 4 [[1 2 3]])))
     (is (= [0 0] (sut/steps 1 [[1 2 3]])))
@@ -66,7 +67,13 @@
       (is (= {:id "ÄG1" :nw [85.2 5] :se [82.5 18.5]}
              (sut/def->sub square 1)))
       (is (= {:id "ÄG9" :nw [79.8 32] :se [77.1 45.5]}
-             (sut/def->sub square 9)))))
+             (sut/def->sub square 9))))
+    (let [square {:id "BF7" :nw [45.6 -11.5] :se [42.9 -7.9]}]
+      (is (= {:id "BF73" :nw [45.6 -9.1] :se [44.7 -7.9]}
+             (sut/def->sub square 3)))
+      (is (= {:id "BF7" :nw [45.6 -11.5] :se [42.9 -7.9]}
+             (sut/def->sub square 0)) "returns itself for n=0")
+      ))
   (testing "partial square with one column"
     (let [square {:id "OT" :nw [33.8 167] :se [25.7 170.6] :sub [[1] [4] [7]]}]
       (testing "returns expected for valid sub-square 1"

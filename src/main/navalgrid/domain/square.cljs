@@ -35,16 +35,19 @@
       :default square)))
 
 (defn def->sub
-  "Returns sub-square n for provided square definition.
-  Example: sub-square 5 for square AK1 would be AK15"
+  "Returns sub-square n for provided square definition or itself if n=0.
+  Example: sub-square 5 for square AK1 would be AK15
+           sub-square 0 for square BF7 would be BF7"
   [{:keys [id nw se sub]} n]
-  (let [[e s] (if sub [(count (first sub)) (count sub)] [3 3])
-        [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
-        [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))]
-    (when-let [[h v] (steps n sub)]
-      (-> {:id (str id n) :nw nw :se [lat-s lon-e]}
-          (shift :h h)
-          (shift :v v)))))
+  (if (= 0 n)
+    {:id id :nw nw :se se}
+    (let [[e s] (if sub [(count (first sub)) (count sub)] [3 3])
+          [_ lon-e] (second (geo/simple-rhumb-division nw [(first nw) (second se)] e))
+          [lat-s _] (second (geo/simple-rhumb-division nw [(first se) (second nw)] s))]
+      (when-let [[h v] (steps n sub)]
+        (-> {:id (str id n) :nw nw :se [lat-s lon-e]}
+            (shift :h h)
+            (shift :v v))))))
 
 (defn def->regular
   "Returns 3-by-3-square that matches reference ref by calculating from definition def.
