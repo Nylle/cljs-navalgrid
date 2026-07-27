@@ -7,6 +7,7 @@
 (def map-properties {:style              "/marinequadratkarte.json"
                      :center             [0 40]
                      :zoom               1
+                     :scrollZoom false
                      :attributionControl false})
 
 (def outer-prefix "outer-")
